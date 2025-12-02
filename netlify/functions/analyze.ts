@@ -1,4 +1,10 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 interface GeminiResponse {
   candidates?: Array<{
@@ -152,6 +158,21 @@ const handler: Handler = async (event: HandlerEvent) => {
     }
 
     const result = await analyzeWithGemini(htmlContent);
+
+    try {
+      const { error: insertError } = await supabase
+        .from('diagnosis_logs')
+        .insert({
+          url,
+          result,
+        });
+
+      if (insertError) {
+        console.error('Failed to save diagnosis log to Supabase:', insertError);
+      }
+    } catch (dbError) {
+      console.error('Supabase insert error:', dbError);
+    }
 
     return {
       statusCode: 200,
