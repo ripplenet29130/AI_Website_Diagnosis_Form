@@ -36,24 +36,21 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   const convertToList = (input: string | string[]): string[] => {
-  // すでに配列ならそのまま整形して返す
+  // すでに配列なら → 各項目をトリムして返す
   if (Array.isArray(input)) {
-    return input.map((item) => {
-      const clean = item.replace(/^・+/g, "").trim();
-      return `・${clean}`;
-    });
+    return input.map((item) =>
+      item.replace(/^・+/g, "").trim()
+    );
   }
 
-  // 文字列の場合は split
+  // 文字列なら split して整形
   return input
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-    .map((line) => {
-      const clean = line.replace(/^・+/g, "");
-      return `・${clean}`;
-    });
+    .map((line) => line.replace(/^・+/g, "").trim());
 };
+
 
   const handleSubmit = async (url: string) => {
     setIsLoading(true);
