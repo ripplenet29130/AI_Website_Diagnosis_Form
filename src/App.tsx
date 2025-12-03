@@ -48,7 +48,7 @@ function App() {
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-    .map((line) => line.replace(/^・+/g, "").trim());
+    .map((line) => line.replace(/^・+/g, "")); // ← AIの「・」を削除
 };
 
 
