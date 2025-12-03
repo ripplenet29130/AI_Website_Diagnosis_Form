@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ===== 診断結果の文字サイズを少し大きく ===== */
+.result-text {
+  @apply text-[17px] leading-relaxed;
+}
+
+/* ===== 箇条書きスタイル統一 ===== */
+.result-text ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+.result-text li {
+  margin-bottom: 0.4rem;
+}
