@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Lightbulb,
   Loader2,
+  Download,
 } from 'lucide-react';
 
 import InputForm from './components/InputForm';
@@ -33,6 +34,7 @@ interface DisplayResult {
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<DisplayResult | null>(null);
+  const [originalResult, setOriginalResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const convertToList = (input: string | string[]): string[] => {
@@ -55,6 +57,7 @@ function App() {
   const handleSubmit = async (url: string) => {
     setIsLoading(true);
     setResult(null);
+    setOriginalResult(null);
     setError(null);
 
     try {
@@ -73,6 +76,8 @@ function App() {
 
       const data: AnalysisResult = await response.json();
 
+      setOriginalResult(data);
+
       const displayData: DisplayResult = {
         seo: convertToList(data.seo),
         ux: convertToList(data.ux),
@@ -87,6 +92,37 @@ function App() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const downloadPDF = async () => {
+    if (!originalResult) return;
+
+    try {
+      const response = await fetch('/.netlify/functions/pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ result: originalResult }),
+      });
+
+      if (!response.ok) {
+        throw new Error('PDF generation failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'website_report.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('PDFのダウンロードに失敗しました');
     }
   };
 
@@ -109,7 +145,17 @@ function App() {
         )}
 
         {result && !isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <>
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={downloadPDF}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-md hover:shadow-lg"
+              >
+                <Download className="w-5 h-5" />
+                PDFで保存する
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ResultBlock
               title="SEO分析"
               icon={Search}
@@ -150,6 +196,7 @@ function App() {
               />
             </div>
           </div>
+          </>
         )}
       </div>
     </div>
