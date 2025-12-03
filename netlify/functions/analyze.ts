@@ -26,23 +26,29 @@ async function analyzeWithGemini(htmlContent: string): Promise<AnalysisResult> {
 
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
-  const prompt = `あなたはプロのWebコンサルタントです。
-以下のHTMLを元にサイトを包括的に分析してください。
+ const prompt = `あなたはプロのWebコンサルタントです。
+以下のHTMLを分析し、読みやすく丁寧な文章でレポートを作成してください。
 
-必ず以下のJSON形式で回答してください：
+【重要ルール】
+・必ず「適度な改行」を入れて読みやすくしてください
+・1つの項目につき 3〜6 行程度の段落にしてください
+・箇条書きがあればそのまま維持して OK
+・専門用語はできるだけ噛み砕いた表現にしてください
 
+【出力形式（必ず JSON）】
 {
-  "seo": "",
-  "ux": "",
-  "conversion": "",
-  "strengths": "",
-  "weaknesses": "",
-  "improvement": ""
+  "seo": "（改行を含む SEO分析）",
+  "ux": "（改行を含む UX/UI分析）",
+  "conversion": "（改行を含む CV改善案）",
+  "strengths": "（改行を含む 強み）",
+  "weaknesses": "（改行を含む 弱み）",
+  "improvement": "（改行を含む 改善提案）"
 }
 
-HTML（冒頭40,000字）:
+HTML（冒頭40,000文字）:
 ${htmlContent.substring(0, 40000)}
 `;
+
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
