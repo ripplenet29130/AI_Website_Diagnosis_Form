@@ -1,11 +1,6 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
+/* ------------------------- 型定義 ------------------------- */
 interface GeminiResponse {
   candidates?: Array<{
     content: {
@@ -24,16 +19,17 @@ interface AnalysisResult {
   improvement: string;
 }
 
+/* --------------------- Geminiで解析 ---------------------- */
 async function analyzeWithGemini(htmlContent: string): Promise<AnalysisResult> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.AI_MODEL || 'gemini-2.0-flash'; // ←最新に変更
+  const model = process.env.AI_MODEL || 'gemini-2.0-flash';
 
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
   const prompt = `あなたはプロのWebコンサルタントです。
 以下のHTMLを元にサイトを包括的に分析してください。
 
-必ず以下のJSONフォーマットで返してください：
+必ず以下のJSON形式で回答してください：
 
 {
   "seo": "",
@@ -44,7 +40,7 @@ async function analyzeWithGemini(htmlContent: string): Promise<AnalysisResult> {
   "improvement": ""
 }
 
-HTML（冒頭40,000文字）:
+HTML（冒頭40,000字）:
 ${htmlContent.substring(0, 40000)}
 `;
 
@@ -66,134 +62,119 @@ ${htmlContent.substring(0, 40000)}
   );
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Gemini API error:', errorText);
+    const err = await response.text();
+    console.error("Gemini API error:", err);
     throw new Error(`Gemini API error: ${response.status}`);
   }
 
   const data: GeminiResponse = await response.json();
+
   if (data.error) throw new Error(data.error.message);
-  if (!data.candidates?.length) throw new Error('No response from Gemini');
+  if (!data.candidates?.length) throw new Error("No response from Gemini");
 
   const rawText = data.candidates[0].content.parts[0].text;
 
-  // JSON抽出の精度改善
+  // JSON 抽出
   const jsonStart = rawText.indexOf('{');
   const jsonEnd = rawText.lastIndexOf('}');
   if (jsonStart === -1 || jsonEnd === -1) {
-    console.error("Gemini full response:", rawText);
+    console.error("Gemini raw:", rawText);
     throw new Error("JSON部分を解析できませんでした");
   }
 
   const jsonString = rawText.slice(jsonStart, jsonEnd + 1);
+
   let parsed;
   try {
     parsed = JSON.parse(jsonString);
   } catch (err) {
-    console.error("JSON Parse error:", err, jsonString);
+    console.error("JSON parse error:", jsonString);
     throw new Error("Geminiの返却JSON解析に失敗しました");
   }
 
   return {
-    seo: parsed.seo || '',
-    ux: parsed.ux || '',
-    conversion: parsed.conversion || '',
-    strengths: parsed.strengths || '',
-    weaknesses: parsed.weaknesses || '',
-    improvement: parsed.improvement || '',
+    seo: parsed.seo || "",
+    ux: parsed.ux || "",
+    conversion: parsed.conversion || "",
+    strengths: parsed.strengths || "",
+    weaknesses: parsed.weaknesses || "",
+    improvement: parsed.improvement || "",
   };
 }
 
+/* ---------------------- API Handler ---------------------- */
 const handler: Handler = async (event: HandlerEvent) => {
+
+  // CORS → WordPress iframe でも使えるように
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
       },
-      body: '',
+      body: "",
     };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
   try {
-    const body = JSON.parse(event.body || '{}');
+    const body = JSON.parse(event.body || "{}");
     const { url } = body;
 
-    if (!url || typeof url !== 'string')
-      return { statusCode: 400, body: JSON.stringify({ error: 'URL is required' }) };
-
-    try {
-      new URL(url);
-    } catch {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Invalid URL format' }) };
+    if (!url || typeof url !== 'string') {
+      return { statusCode: 400, body: JSON.stringify({ error: "URL is required" }) };
     }
 
-    let htmlContent = '';
+    // URL形式チェック
+    try { new URL(url); }
+    catch { return { statusCode: 400, body: JSON.stringify({ error: "Invalid URL format" }) }; }
+
+    /* ------------ HTML Fetch ------------- */
+    let htmlContent = "";
     try {
-      const response = await fetch(url, {
+      const res = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-          'Accept-Language': 'ja,en;q=0.8',
-          'Accept': 'text/html,application/xhtml+xml'
+          "User-Agent": "Mozilla/5.0",
+          "Accept-Language": "ja,en;q=0.8",
         },
         signal: AbortSignal.timeout(10000),
       });
 
-      if (!response.ok) {
+      if (!res.ok) {
         return {
           statusCode: 400,
-          body: JSON.stringify({ error: `Failed to fetch URL: ${response.status}` }),
+          body: JSON.stringify({ error: `Failed to fetch URL: ${res.status}` }),
         };
       }
 
-      htmlContent = await response.text();
+      htmlContent = await res.text();
     } catch (err) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'Failed to fetch the website' }) };
+      return { statusCode: 400, body: JSON.stringify({ error: "Failed to fetch website" }) };
     }
 
+    /* ----------- Gemini解析 ----------- */
     const result = await analyzeWithGemini(htmlContent);
 
-    try {
-      const { error: insertError } = await supabase
-        .from('diagnosis_logs')
-        .insert({
-          url,
-          result,
-        });
-
-      if (insertError) {
-        console.error('Failed to save diagnosis log to Supabase:', insertError);
-      }
-    } catch (dbError) {
-      console.error('Supabase insert error:', dbError);
-    }
-
+    /* ----------- 結果返却 ----------- */
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify(result),
     };
-  } catch (err) {
+
+  } catch (err: any) {
     return {
       statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        error: err instanceof Error ? err.message : 'Internal server error',
-      }),
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: err.message || "Internal server error" }),
     };
   }
 };
