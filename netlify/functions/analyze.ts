@@ -22,26 +22,28 @@ async function analyzeWithGemini(htmlContent: string): Promise<LLMResponse> {
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
 
   const prompt = `あなたはプロのWebコンサルタントです。
-以下のHTMLを分析し、読みやすく丁寧な文章でレポートを作成してください。
+以下のHTMLをもとに Webサイトを分析し、
+**必ず「箇条書き（・）」のみで出力してください。**
 
 【重要ルール】
-・必ず「適度な改行」を入れて読みやすくしてください
-・1つの項目につき 3〜6 行程度の段落にしてください
-・箇条書きがあればそのまま維持して OK
-・専門用語はできるだけ噛み砕いた表現にしてください
+・各項目は必ず 4〜7 個の bullet list で返す
+・文章は 1文を短くして読みやすくする
+・改行をしっかり入れて整形する
+・段落は作らず、箇条書き 1 行のみで返す
 
 【出力形式（必ず JSON）】
 {
-  "seo": "",
-  "ux": "",
-  "conversion": "",
-  "strengths": "",
-  "weaknesses": "",
-  "improvement": ""
+  "seo": ["・...", "・...", ...],
+  "ux": ["・...", "・...", ...],
+  "conversion": ["・...", "・...", ...],
+  "strengths": ["・...", "・...", ...],
+  "weaknesses": ["・...", "・...", ...],
+  "improvement": ["・...", "・...", ...]
 }
 
 HTML（冒頭40,000文字）:
 ${htmlContent.substring(0, 40000)}
+
 `;
 
   const response = await fetch(
