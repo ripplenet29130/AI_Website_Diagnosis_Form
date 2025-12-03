@@ -30,13 +30,13 @@ export default function ResultBlock({ title, icon: Icon, content, color }: Resul
         <ul className="space-y-2">
           {content.map((item, index) => (
             <li key={index} className="flex items-start gap-2">
-              <span className="text-sm mt-0.5">•</span>
-              <span className="text-sm leading-relaxed">{item}</span>
+              {/* ← ドット削除（AI側で付けているため） */}
+              <span className="text-base leading-relaxed">{item.replace(/^・/, '・')}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+        <p className="text-base leading-relaxed whitespace-pre-wrap">{content}</p>
       )}
     </div>
   );
