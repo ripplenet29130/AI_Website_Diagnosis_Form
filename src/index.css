@@ -4,7 +4,7 @@
 
 /* ===== 診断結果の文字サイズを少し大きく ===== */
 .result-text {
-  @apply text-[17px] leading-relaxed;
+  @apply text-[20px] leading-relaxed;
 }
 
 /* ===== 箇条書きスタイル統一 ===== */
