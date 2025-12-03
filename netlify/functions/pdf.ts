@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
 import { PDFDocument, rgb } from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
+import fontkit from 'fontkit';
 import fs from 'fs';
 import path from 'path';
 
