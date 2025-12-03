@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { Search, Eye, TrendingUp, ThumbsUp, AlertTriangle, Lightbulb, Loader2 } from 'lucide-react';
+import {
+  Search,
+  Eye,
+  TrendingUp,
+  ThumbsUp,
+  AlertTriangle,
+  Lightbulb,
+  Loader2,
+} from 'lucide-react';
+
 import InputForm from './components/InputForm';
 import ResultBlock from './components/ResultBlock';
 
@@ -13,9 +22,9 @@ interface AnalysisResult {
 }
 
 interface DisplayResult {
-  seo: string;
-  ux: string;
-  conversion: string;
+  seo: string[];
+  ux: string[];
+  conversion: string[];
   strengths: string[];
   weaknesses: string[];
   improvements: string[];
@@ -25,6 +34,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<DisplayResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const convertToList = (text: string): string[] => {
+    return text
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => (line.startsWith('・') ? line : `・${line}`));
+  };
 
   const handleSubmit = async (url: string) => {
     setIsLoading(true);
@@ -48,12 +65,12 @@ function App() {
       const data: AnalysisResult = await response.json();
 
       const displayData: DisplayResult = {
-        seo: data.seo,
-        ux: data.ux,
-        conversion: data.conversion,
-        strengths: data.strengths.split('\n').filter(s => s.trim()),
-        weaknesses: data.weaknesses.split('\n').filter(s => s.trim()),
-        improvements: data.improvement.split('\n').filter(s => s.trim()),
+        seo: convertToList(data.seo),
+        ux: convertToList(data.ux),
+        conversion: convertToList(data.conversion),
+        strengths: convertToList(data.strengths),
+        weaknesses: convertToList(data.weaknesses),
+        improvements: convertToList(data.improvement),
       };
 
       setResult(displayData);
@@ -66,7 +83,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8 result-text">
         <InputForm onSubmit={handleSubmit} isLoading={isLoading} />
 
         {error && (
@@ -114,6 +131,7 @@ function App() {
               content={result.weaknesses}
               color="orange"
             />
+
             <div className="md:col-span-2">
               <ResultBlock
                 title="改善提案リスト"
