@@ -10,10 +10,6 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { result } = JSON.parse(event.body || '{}');
-    if (!result) {
-      return { statusCode: 400, body: "Missing result" };
-    }
 
     // 🔥 日本語フォントのパス（Netlifyに確実に存在する）
     const fontPath = path.join(
