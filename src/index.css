@@ -3,13 +3,15 @@
 @tailwind utilities;
 
 
-/* ===== 箇条書きスタイル統一 ===== */
+/* ===== 箇条書きの●を消す（AIの「・」だけ使う） ===== */
 .result-text ul {
-  list-style-type: disc;  /* 普通の黒丸 */
-  margin-left: 1.5rem;
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .result-text li {
-  font-size: 1rem; /* ← 大きさ調整 */
-  margin-bottom: 0.35rem;
+  font-size: 1rem;  /* 16px */
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
 }
