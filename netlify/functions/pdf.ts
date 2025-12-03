@@ -76,20 +76,23 @@ export const handler: Handler = async (event) => {
     
       y -= 30;
     
-      for (const line of lines) {
-        // ページ末尾なら改ページ
-        if (y < 60) newPage();
+    for (const rawLine of lines) {
+      if (y < 60) newPage();
     
-        page.drawText(`• ${line}`, {
-          x: 70,
-          y,
-          size: fontSize,
-          font,
-          color: rgb(0, 0, 0),
-        });
+      // 行頭の「・」「•」を削除
+      const line = rawLine.replace(/^・+/, "").replace(/^•+/, "").trim();
     
-        y -= 18;
-      }
+      page.drawText(`• ${line}`, {
+        x: 70,
+        y,
+        size: fontSize,
+        font,
+        color: rgb(0, 0, 0),
+      });
+    
+      y -= 18;
+    }
+
     
       y -= 16; // セクション間の余白
     };
