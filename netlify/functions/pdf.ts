@@ -1,115 +1,94 @@
-import { Handler } from '@netlify/functions';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { Handler } from "@netlify/functions";
+import { PDFDocument, rgb } from "pdf-lib";
+import fs from "fs";
+import path from "path";
 
 export const handler: Handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
-      body: '',
-    };
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method not allowed' };
-  }
-
   try {
-    const bodyData = JSON.parse(event.body || '{}');
-    const raw = bodyData.result;
-
-    if (!raw) {
+    if (event.httpMethod === "OPTIONS") {
       return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Result data is required' }),
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+        },
+        body: "",
       };
     }
 
-    // 配列 → 文字列へ変換
-    const normalize = (v: any) => {
-      if (!v) return '';
-      if (Array.isArray(v)) return v.join('\n');
-      if (typeof v === 'object') return JSON.stringify(v, null, 2);
-      return String(v);
-    };
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method not allowed" };
+    }
 
-    // PDF 用に完全整形された result
-    const result = {
-      seo: normalize(raw.seo),
-      ux: normalize(raw.ux),
-      conversion: normalize(raw.conversion),
-      strengths: normalize(raw.strengths),
-      weaknesses: normalize(raw.weaknesses),
-      improvement: normalize(raw.improvement),
-    };
+    const body = JSON.parse(event.body || "{}");
+    const result = body.result;
+
+    if (!result) {
+      return { statusCode: 400, body: "Missing result" };
+    }
+
+    // 日本語フォントを読み込む
+    const fontPath = path.join(__dirname, "fonts", "NotoSansJP-Regular.ttf");
+    const fontBytes = fs.readFileSync(fontPath);
 
     // PDF 作成
     const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    let page = pdfDoc.addPage([595, 842]);
-    const fontSize = 12;
+    const font = await pdfDoc.embedFont(fontBytes);
+
+    const page = pdfDoc.addPage([595, 842]);
     let y = 780;
 
     const write = (title: string, text: string) => {
-      const lines = text.split('\n').filter((l) => l.trim().length > 0);
-
       page.drawText(title, {
         x: 50,
         y,
-        size: 16,
+        size: 18,
         font,
         color: rgb(0.2, 0.2, 0.2),
       });
-      y -= 25;
+      y -= 30;
 
+      const lines = text.split("\n");
       lines.forEach((line) => {
-        if (y < 60) {
-          page = pdfDoc.addPage([595, 842]);
-          y = 780;
-        }
-
-        page.drawText(`• ${line.replace(/^・/, '')}`, {
+        page.drawText("・" + line.trim(), {
           x: 70,
           y,
-          size: fontSize,
+          size: 12,
           font,
         });
-        y -= 18;
-      });
+        y -= 20;
 
-      y -= 20;
+        if (y < 60) {
+          y = 780;
+          pdfDoc.addPage([595, 842]);
+        }
+      });
+      y -= 10;
     };
 
-    // 各セクションを書き込む
-    write('SEO分析', result.seo);
-    write('UX/UI分析', result.ux);
-    write('コンバージョン改善', result.conversion);
-    write('強み', result.strengths);
-    write('弱み', result.weaknesses);
-    write('改善提案リスト', result.improvement);
+    write("SEO分析", result.seo);
+    write("UX/UI分析", result.ux);
+    write("コンバージョン改善", result.conversion);
+    write("強み", result.strengths);
+    write("弱み", result.weaknesses);
+    write("改善提案", result.improvement);
 
     const pdfBytes = await pdfDoc.save();
-    const base64 = Buffer.from(pdfBytes).toString('base64');
+    const base64 = Buffer.from(pdfBytes).toString("base64");
 
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=website_report.pdf',
-        'Access-Control-Allow-Origin': '*',
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=website_report.pdf",
+        "Access-Control-Allow-Origin": "*",
       },
       body: base64,
       isBase64Encoded: true,
     };
   } catch (e) {
-    console.error('PDF error', e);
-    return {
-      statusCode: 500,
-      body: 'PDF error',
-    };
+    console.error("PDF日本語エラー", e);
+    return { statusCode: 500, body: "PDF error" };
   }
 };
