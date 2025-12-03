@@ -29,9 +29,8 @@ export default function ResultBlock({ title, icon: Icon, content, color }: Resul
       {Array.isArray(content) ? (
         <ul className="space-y-2">
           {content.map((item, index) => (
-            <li key={index} className="flex items-start gap-2">
-              {/* ← ドット削除（AI側で付けているため） */}
-              <span className="text-base leading-relaxed">{item.replace(/^・/, '・')}</span>
+            <li key={index} className="text-base leading-relaxed">
+              {item}
             </li>
           ))}
         </ul>
