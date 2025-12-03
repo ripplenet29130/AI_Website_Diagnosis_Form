@@ -45,18 +45,27 @@ export const handler: Handler = async (event) => {
     );
     const fontBytes = fs.readFileSync(fontPath);
 
+    // PDF作成
     const pdfDoc = await PDFDocument.create();
     pdfDoc.registerFontkit(fontkit);
-
     const font = await pdfDoc.embedFont(fontBytes);
-    const page = pdfDoc.addPage([595, 842]);
+    
+    let page = pdfDoc.addPage([595, 842]); // A4
     let y = 780;
-
-    // -------- テキスト描画 --------
+    const fontSize = 12;
+    
+    // ---- 新しいページを作る ----
+    const newPage = () => {
+      page = pdfDoc.addPage([595, 842]);
+      y = 780;
+    };
+    
+    // ---- 見出し＋本文を書く ----
     const write = (title: string, text: string) => {
-      const safeText = String(text); // split エラー防止
+      const safeText = String(text);
       const lines = safeText.split("\n");
-
+    
+      // 見出し
       page.drawText(title, {
         x: 50,
         y,
@@ -64,25 +73,27 @@ export const handler: Handler = async (event) => {
         font,
         color: rgb(0.2, 0.2, 0.2),
       });
-      y -= 25;
-
-      lines.forEach((line) => {
+    
+      y -= 30;
+    
+      for (const line of lines) {
+        // ページ末尾なら改ページ
+        if (y < 60) newPage();
+    
         page.drawText(`• ${line}`, {
           x: 70,
           y,
-          size: 12,
+          size: fontSize,
           font,
+          color: rgb(0, 0, 0),
         });
+    
         y -= 18;
-
-        if (y < 60) {
-          y = 780;
-          pdfDoc.addPage([595, 842]);
-        }
-      });
-
-      y -= 20;
+      }
+    
+      y -= 16; // セクション間の余白
     };
+
 
     write("SEO分析", result.seo);
     write("UX/UI分析", result.ux);
