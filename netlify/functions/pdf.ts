@@ -86,4 +86,16 @@ export const handler: Handler = async (event) => {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename=website_report.pdf',
-        'Access
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: base64,
+      isBase64Encoded: true,
+    };
+  } catch (e) {
+    console.error('PDF error', e);
+    return {
+      statusCode: 500,
+      body: 'PDF error',
+    };
+  }
+};
