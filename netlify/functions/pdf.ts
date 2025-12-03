@@ -28,6 +28,32 @@ export const handler: Handler = async (event) => {
   }
 
   try {
+    const bodyData = JSON.parse(event.body || '{}');
+    const raw = bodyData.result;
+    
+    if (!raw) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Result data is required' }),
+      };
+    }
+    
+    const normalize = (v: any) => {
+      if (!v) return "";
+      if (Array.isArray(v)) return v.join("\n");
+      if (typeof v === "object") return JSON.stringify(v, null, 2);
+      return String(v);
+    };
+    
+    const result = {
+      seo: normalize(raw.seo),
+      ux: normalize(raw.ux),
+      conversion: normalize(raw.conversion),
+      strengths: normalize(raw.strengths),
+      weaknesses: normalize(raw.weaknesses),
+      improvement: normalize(raw.improvement),
+    };
+    
     const { result } = JSON.parse(event.body || '{}') as { result: AnalysisResult };
     if (!result) {
       return { statusCode: 400, body: 'result missing' };
