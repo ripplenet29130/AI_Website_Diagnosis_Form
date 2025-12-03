@@ -35,16 +35,25 @@ function App() {
   const [result, setResult] = useState<DisplayResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const convertToList = (text: string): string[] => {
-    return text
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .map((line) => {
-       const clean = line.replace(/^・+/g, ''); // ←先頭の「・」を全部消す
-       return `・${clean}`;                    // ←必ず1つだけ付け直す
+  const convertToList = (input: string | string[]): string[] => {
+  // すでに配列ならそのまま整形して返す
+  if (Array.isArray(input)) {
+    return input.map((item) => {
+      const clean = item.replace(/^・+/g, "").trim();
+      return `・${clean}`;
     });
-  };
+  }
+
+  // 文字列の場合は split
+  return input
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const clean = line.replace(/^・+/g, "");
+      return `・${clean}`;
+    });
+};
 
   const handleSubmit = async (url: string) => {
     setIsLoading(true);
