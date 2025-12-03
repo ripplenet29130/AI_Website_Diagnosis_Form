@@ -1,5 +1,5 @@
-import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
-import PDFDocument from 'pdfkit';
+import { Handler } from '@netlify/functions';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 interface AnalysisResult {
   seo: string;
@@ -10,7 +10,7 @@ interface AnalysisResult {
   improvement: string;
 }
 
-const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
+export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -24,89 +24,66 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return { statusCode: 405, body: 'Method not allowed' };
   }
 
   try {
-    const body = JSON.parse(event.body || '{}');
-    const result: AnalysisResult = body.result;
-
+    const { result } = JSON.parse(event.body || '{}') as { result: AnalysisResult };
     if (!result) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Result data is required' }),
-      };
+      return { statusCode: 400, body: 'result missing' };
     }
 
-    const doc = new PDFDocument({ margin: 50 });
-    const chunks: Buffer[] = [];
+    // PDF 作成開始
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const page = pdfDoc.addPage([595, 842]); // A4
+    const { width } = page.getSize();
+    const fontSize = 12;
+    let y = 780;
 
-    doc.on('data', (chunk) => chunks.push(chunk));
+    const write = (title: string, text: string) => {
+      const lines = text.split('\n').filter((l) => l.trim().length > 0);
 
-    const pdfPromise = new Promise<Buffer>((resolve) => {
-      doc.on('end', () => resolve(Buffer.concat(chunks)));
-    });
+      page.drawText(title, {
+        x: 50,
+        y,
+        size: 16,
+        font,
+        color: rgb(0.2, 0.2, 0.2),
+      });
+      y -= 25;
 
-    doc.fontSize(20).font('Helvetica-Bold').text('AI Webサイト診断レポート', { align: 'center' });
-    doc.moveDown(2);
-
-    const addSection = (title: string, content: string) => {
-      doc.fontSize(16).font('Helvetica-Bold').text(title);
-      doc.moveDown(0.5);
-
-      const displayContent = content || '（データなし）';
-      const lines = displayContent.split('\n');
-
-      doc.fontSize(12).font('Helvetica');
       lines.forEach((line) => {
-        if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-          doc.text(`・ ${line.trim().replace(/^[-•]\s*/, '')}`, { indent: 20 });
-        } else if (line.trim()) {
-          doc.text(line.trim());
+        page.drawText(`• ${line.replace(/^・/, '')}`, {
+          x: 70,
+          y,
+          size: fontSize,
+          font,
+        });
+        y -= 18;
+
+        if (y < 60) {
+          y = 780;
+          pdfDoc.addPage([595, 842]);
         }
       });
 
-      doc.moveDown(1.5);
+      y -= 20;
     };
 
-    addSection('SEO分析', result.seo);
-    addSection('UX/UI分析', result.ux);
-    addSection('コンバージョン改善', result.conversion);
-    addSection('強み', result.strengths);
-    addSection('弱み', result.weaknesses);
-    addSection('改善提案リスト', result.improvement);
+    write('SEO分析', result.seo);
+    write('UX/UI分析', result.ux);
+    write('コンバージョン改善', result.conversion);
+    write('強み', result.strengths);
+    write('弱み', result.weaknesses);
+    write('改善提案リスト', result.improvement);
 
-    doc.end();
-
-    const pdfBuffer = await pdfPromise;
-    const base64PDF = pdfBuffer.toString('base64');
+    const pdfBytes = await pdfDoc.save();
+    const base64 = Buffer.from(pdfBytes).toString('base64');
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename=website_report.pdf',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: base64PDF,
-      isBase64Encoded: true,
-    };
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        error: error instanceof Error ? error.message : 'Internal server error',
-      }),
-    };
-  }
-};
-
-export { handler };
+        'Access
