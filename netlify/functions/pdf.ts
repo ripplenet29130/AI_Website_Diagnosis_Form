@@ -29,7 +29,13 @@ export const handler: Handler = async (event) => {
     }
 
     // 日本語フォントを読み込む
-    const fontPath = path.join(__dirname, "fonts", "NotoSansJP-Regular.ttf");
+    const fontPath = path.join(
+    process.cwd(),
+    "netlify",
+    "functions",
+    "fonts",
+    "NotoSansJP-Regular.ttf"
+    );
     const fontBytes = fs.readFileSync(fontPath);
 
     // PDF 作成
