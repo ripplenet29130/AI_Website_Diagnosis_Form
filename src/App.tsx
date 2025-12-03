@@ -40,7 +40,10 @@ function App() {
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
-      .map((line) => (line.startsWith('・') ? line : `・${line}`));
+      .map((line) => {
+       const clean = line.replace(/^・+/g, ''); // ←先頭の「・」を全部消す
+       return `・${clean}`;                    // ←必ず1つだけ付け直す
+    });
   };
 
   const handleSubmit = async (url: string) => {
