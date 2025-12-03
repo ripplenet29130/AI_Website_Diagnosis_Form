@@ -1,15 +1,6 @@
 import { Handler } from '@netlify/functions';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-interface AnalysisResult {
-  seo: string;
-  ux: string;
-  conversion: string;
-  strengths: string;
-  weaknesses: string;
-  improvement: string;
-}
-
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -30,21 +21,23 @@ export const handler: Handler = async (event) => {
   try {
     const bodyData = JSON.parse(event.body || '{}');
     const raw = bodyData.result;
-    
+
     if (!raw) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: 'Result data is required' }),
       };
     }
-    
+
+    // 配列 → 文字列へ変換
     const normalize = (v: any) => {
-      if (!v) return "";
-      if (Array.isArray(v)) return v.join("\n");
-      if (typeof v === "object") return JSON.stringify(v, null, 2);
+      if (!v) return '';
+      if (Array.isArray(v)) return v.join('\n');
+      if (typeof v === 'object') return JSON.stringify(v, null, 2);
       return String(v);
     };
-    
+
+    // PDF 用に完全整形された result
     const result = {
       seo: normalize(raw.seo),
       ux: normalize(raw.ux),
@@ -53,17 +46,11 @@ export const handler: Handler = async (event) => {
       weaknesses: normalize(raw.weaknesses),
       improvement: normalize(raw.improvement),
     };
-    
-    const { result } = JSON.parse(event.body || '{}') as { result: AnalysisResult };
-    if (!result) {
-      return { statusCode: 400, body: 'result missing' };
-    }
 
-    // PDF 作成開始
+    // PDF 作成
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const page = pdfDoc.addPage([595, 842]); // A4
-    const { width } = page.getSize();
+    let page = pdfDoc.addPage([595, 842]);
     const fontSize = 12;
     let y = 780;
 
@@ -80,6 +67,11 @@ export const handler: Handler = async (event) => {
       y -= 25;
 
       lines.forEach((line) => {
+        if (y < 60) {
+          page = pdfDoc.addPage([595, 842]);
+          y = 780;
+        }
+
         page.drawText(`• ${line.replace(/^・/, '')}`, {
           x: 70,
           y,
@@ -87,16 +79,12 @@ export const handler: Handler = async (event) => {
           font,
         });
         y -= 18;
-
-        if (y < 60) {
-          y = 780;
-          pdfDoc.addPage([595, 842]);
-        }
       });
 
       y -= 20;
     };
 
+    // 各セクションを書き込む
     write('SEO分析', result.seo);
     write('UX/UI分析', result.ux);
     write('コンバージョン改善', result.conversion);
