@@ -1,14 +1,21 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/fonts/*.ttf"]
+  external_node_modules = ["fontkit"]
+
+# Functions 優先
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA（React）用ルーティング
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[functions]
-  node_bundler = "esbuild"
-  included_files = ["netlify/functions/fonts/*.ttf"]
-  external_node_modules = ["fontkit"]
