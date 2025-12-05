@@ -54,46 +54,71 @@ function App() {
 };
 
 
-  const handleSubmit = async (url: string) => {
-    setIsLoading(true);
-    setResult(null);
-    setOriginalResult(null);
-    setError(null);
+const handleSubmit = async (url: string) => {
+  setIsLoading(true);
+  setResult(null);
+  setOriginalResult(null);
+  setError(null);
 
-    try {
-      const response = await fetch('/.netlify/functions/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
+  try {
+    // ① まず PHP に送って request_id を作る
+    const reqRes = await fetch("https://rip-ple.com/api/create-request.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target_url: url }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Analysis failed');
-      }
-
-      const data: AnalysisResult = await response.json();
-
-      setOriginalResult(data);
-
-      const displayData: DisplayResult = {
-        seo: convertToList(data.seo),
-        ux: convertToList(data.ux),
-        conversion: convertToList(data.conversion),
-        strengths: convertToList(data.strengths),
-        weaknesses: convertToList(data.weaknesses),
-        improvements: convertToList(data.improvement),
-      };
-
-      setResult(displayData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+    const reqJson = await reqRes.json();
+    if (!reqJson.success) {
+      throw new Error("リクエスト登録に失敗しました: " + reqJson.error);
     }
-  };
+
+    const request_id = reqJson.request_id;
+
+    // ② 次に Netlify Functions を呼んで AI 診断を実行
+    const aiRes = await fetch("/.netlify/functions/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!aiRes.ok) {
+      const errJson = await aiRes.json();
+      throw new Error(errJson.error || "分析に失敗しました");
+    }
+
+    const data: AnalysisResult = await aiRes.json();
+    setOriginalResult(data);
+
+    // ③ 診断結果を PHP に保存
+    await fetch("https://rip-ple.com/api/save-result.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        request_id,
+        target_url: url,
+        result: JSON.stringify(data),
+      }),
+    });
+
+    // ④ 画面用に整形
+    const displayData: DisplayResult = {
+      seo: convertToList(data.seo),
+      ux: convertToList(data.ux),
+      conversion: convertToList(data.conversion),
+      strengths: convertToList(data.strengths),
+      weaknesses: convertToList(data.weaknesses),
+      improvements: convertToList(data.improvement),
+    };
+
+    setResult(displayData);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "エラーが発生しました");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const downloadPDF = async () => {
     if (!originalResult) return;
