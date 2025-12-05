@@ -123,36 +123,38 @@ const handleSubmit = async (url: string) => {
 
 
 
-  const downloadPDF = async () => {
-    if (!originalResult) return;
+const downloadPDF = async () => {
+  if (!originalResult) return;
 
-    try {
-      const response = await fetch('/.netlify/functions/pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+  try {
+    const response = await fetch(
+      `${NETLIFY_API}/pdf`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ result: originalResult }),
-      });
-
-      if (!response.ok) {
-        throw new Error('PDF generation failed');
       }
+    );
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'website_report.pdf';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('PDF download error:', err);
-      alert('PDFのダウンロードに失敗しました');
+    if (!response.ok) {
+      throw new Error("PDF generation failed");
     }
-  };
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "website_report.pdf";
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (err) {
+    console.error("PDF download error:", err);
+    alert("PDFのダウンロードに失敗しました");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
