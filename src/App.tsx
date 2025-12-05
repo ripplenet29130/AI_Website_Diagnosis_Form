@@ -53,6 +53,7 @@ function App() {
     .map((line) => line.replace(/^・+/g, "")); // ← AIの「・」を削除
 };
 
+const NETLIFY_API = "https://ai-website-diagnosis-form.netlify.app/.netlify/functions";
 
 const handleSubmit = async (url: string) => {
   setIsLoading(true);
@@ -61,7 +62,7 @@ const handleSubmit = async (url: string) => {
   setError(null);
 
   try {
-    // ① まず PHP に送って request_id を作る
+    // ① PHP（さくら）に request_id を作成
     const reqRes = await fetch("https://rip-ple.com/api/create-request.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -70,27 +71,29 @@ const handleSubmit = async (url: string) => {
 
     const reqJson = await reqRes.json();
     if (!reqJson.success) {
-      throw new Error("リクエスト登録に失敗しました: " + reqJson.error);
+      throw new Error("リクエスト登録に失敗: " + reqJson.error);
     }
 
     const request_id = reqJson.request_id;
 
-    // ② 次に Netlify Functions を呼んで AI 診断を実行
-    const aiRes = await fetch("/.netlify/functions/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
-    });
+    // ② Netlify（AI分析）
+    const aiRes = await fetch(
+      `${NETLIFY_API}/analyze`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      }
+    );
 
     if (!aiRes.ok) {
-      const errJson = await aiRes.json();
-      throw new Error(errJson.error || "分析に失敗しました");
+      throw new Error("AI分析に失敗しました");
     }
 
-    const data: AnalysisResult = await aiRes.json();
+    const data = await aiRes.json();
     setOriginalResult(data);
 
-    // ③ 診断結果を PHP に保存
+    // ③ PHPに結果保存
     await fetch("https://rip-ple.com/api/save-result.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -101,23 +104,23 @@ const handleSubmit = async (url: string) => {
       }),
     });
 
-    // ④ 画面用に整形
-    const displayData: DisplayResult = {
+    // ④ 画面表示
+    setResult({
       seo: convertToList(data.seo),
       ux: convertToList(data.ux),
       conversion: convertToList(data.conversion),
       strengths: convertToList(data.strengths),
       weaknesses: convertToList(data.weaknesses),
       improvements: convertToList(data.improvement),
-    };
+    });
 
-    setResult(displayData);
   } catch (err) {
     setError(err instanceof Error ? err.message : "エラーが発生しました");
   } finally {
     setIsLoading(false);
   }
 };
+
 
 
   const downloadPDF = async () => {
