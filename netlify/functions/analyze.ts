@@ -1,6 +1,5 @@
-import { Handler, HandlerEvent } from '@netlify/functions';
+import { Handler, HandlerEvent } from '@netlify/functions'
 
-/* ------------------------- 型定義 ------------------------- */
 interface LLMResponse {
   seo: string;
   ux: string;
@@ -10,13 +9,10 @@ interface LLMResponse {
   improvement: string;
 }
 
-/* ------------------------- AI選択 ------------------------- */
-const AI_PROVIDER = process.env.AI_PROVIDER || "gemini";  // gemini / openai
+const AI_PROVIDER = process.env.AI_PROVIDER || "gemini";
 const AI_MODEL = process.env.AI_MODEL || "gemini-2.0-flash";
 
-/* ============================================================
-   Gemini 解析
-============================================================ */
+/* ---------- Gemini ---------- */
 async function analyzeWithGemini(htmlContent: string): Promise<LLMResponse> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
@@ -43,7 +39,6 @@ async function analyzeWithGemini(htmlContent: string): Promise<LLMResponse> {
 
 HTML（冒頭40,000文字）:
 ${htmlContent.substring(0, 40000)}
-
 `;
 
   const response = await fetch(
@@ -53,91 +48,25 @@ ${htmlContent.substring(0, 40000)}
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2048,
-          topK: 40,
-          topP: 0.95,
-        },
-      }),
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+      })
     }
   );
 
   const data = await response.json();
-
   if (data.error) throw new Error(data.error.message);
 
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
   const jsonStart = raw.indexOf("{");
   const jsonEnd = raw.lastIndexOf("}");
-  if (jsonStart === -1 || jsonEnd === -1) throw new Error("Gemini JSON抽出失敗");
 
   return JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
 }
 
 /* ============================================================
-   OpenAI (ChatGPT) 解析
-============================================================ */
-async function analyzeWithOpenAI(htmlContent: string): Promise<LLMResponse> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
-
-  const prompt = `あなたはプロのWebコンサルタントです。
-以下のHTMLを分析し、読みやすく丁寧な文章でレポートを作成してください。
-
-【重要ルール】
-・必ず「適度な改行」を入れて読みやすくしてください
-・1つの項目につき 3〜6 行程度の段落にしてください
-・箇条書きがあればそのまま維持して OK
-・専門用語はできるだけ噛み砕いた表現にしてください
-
-【必ず JSON 形式で返す】
-{
-  "seo": "",
-  "ux": "",
-  "conversion": "",
-  "strengths": "",
-  "weaknesses": "",
-  "improvement": ""
-}
-
-HTML（冒頭40,000文字）:
-${htmlContent.substring(0, 40000)}
-`;
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: AI_MODEL, // gpt-4o-mini など
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.4,
-    }),
-  });
-
-  const data = await response.json();
-  const text = data.choices?.[0]?.message?.content || "";
-
-  const jsonStart = text.indexOf("{");
-  const jsonEnd = text.lastIndexOf("}");
-
-  if (jsonStart === -1 || jsonEnd === -1) {
-    console.error("OpenAI返却:", text);
-    throw new Error("OpenAI JSON抽出失敗");
-  }
-
-  return JSON.parse(text.slice(jsonStart, jsonEnd + 1));
-}
-
-/* ============================================================
-   メイン API Handler
+   Main Handler
 ============================================================ */
 const handler: Handler = async (event: HandlerEvent) => {
-  // CORS
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -163,23 +92,19 @@ const handler: Handler = async (event: HandlerEvent) => {
     try { new URL(url); }
     catch { return { statusCode: 400, body: JSON.stringify({ error: "Invalid URL format" }) }; }
 
-    // LLMs.txt チェック
+    /* ---------- LLMs.txt チェック ---------- */
     const llmsUrl = `${url.replace(/\/$/, "")}/llms.txt`;
-    let llmsStatus = "not_found";
-    
+    let llmsStatus = "not_installed";
+
     try {
       const llmsRes = await fetch(llmsUrl, { method: "GET", signal: AbortSignal.timeout(5000) });
-    
       if (llmsRes.status === 200) {
         llmsStatus = "installed";
-      } else {
-        llmsStatus = "not_installed";
       }
     } catch (e) {
       llmsStatus = "error";
     }
 
-    
     // HTML取得
     const res = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -189,17 +114,12 @@ const handler: Handler = async (event: HandlerEvent) => {
     if (!res.ok) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: `Failed to fetch URL: ${res.status}` }),
+        body: JSON.stringify({ error: `Failed to fetch URL: ${res.status}`, llms: llmsStatus }),
       };
     }
 
     const htmlContent = await res.text();
-
-    // 🔥 AI プロバイダを自動選択
-    const result =
-      AI_PROVIDER === "openai"
-        ? await analyzeWithOpenAI(htmlContent)
-        : await analyzeWithGemini(htmlContent);
+    const result = await analyzeWithGemini(htmlContent);
 
     return {
       statusCode: 200,
@@ -207,15 +127,11 @@ const handler: Handler = async (event: HandlerEvent) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({
-    llms: llmsStatus,
-    ai: result,   // 今までのAI診断結果
-  }),
-};
+      body: JSON.stringify({ llms: llmsStatus, ai: result }),
+    };
 
   } catch (err: any) {
     console.error("ERROR:", err);
-
     return {
       statusCode: 500,
       headers: {
@@ -228,3 +144,5 @@ const handler: Handler = async (event: HandlerEvent) => {
 };
 
 export { handler };
+
+
