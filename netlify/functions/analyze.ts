@@ -31,6 +31,7 @@ export const handler: Handler = async (event) => {
     contentLength: 0,
   };
 
+  // HTML解析（構造化データ検出＋コンテンツ量取得）
   try {
     const res = await fetch(cleanUrl, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -38,17 +39,21 @@ export const handler: Handler = async (event) => {
     const html = await res.text();
     result.contentLength = html.length;
     result.structured = html.includes("application/ld+json");
-  } catch {}
+  } catch (err) {
+    console.error("HTML fetch error:", err);
+  }
 
-    const score =
-      (result.llms ? 25 : -20) +
-      (result.structured ? 20 : -10) +
-      Math.min(result.contentLength / 10000, 1) * 25 +
-      (result.robots ? 10 : 0) +
-      (result.sitemap ? 10 : 0) +
-      (result.https ? 5 : 0) +
-      (result.favicon ? 5 : 0);
-
+  // ============================
+  // AI対策スコア算出（中間型）
+  // ============================
+  const score =
+    (result.llms ? 25 : -20) +
+    (result.structured ? 20 : -10) +
+    Math.min(result.contentLength / 10000, 1) * 25 +
+    (result.robots ? 10 : 0) +
+    (result.sitemap ? 10 : 0) +
+    (result.https ? 5 : 0) +
+    (result.favicon ? 5 : 0);
 
   return {
     statusCode: 200,
