@@ -1,87 +1,62 @@
 import { Handler } from "@netlify/functions";
 
 export const handler: Handler = async (event) => {
-
-  // Preflight (OPTIONS)
-  if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-      },
-      body: "",
-    };
-  }
-
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
-  }
-
   const { url } = JSON.parse(event.body || "{}");
 
   if (!url) {
     return {
       statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "URL is required" }),
     };
   }
 
-  const llmsUrl = `${url.replace(/\/$/, "")}/llms.txt`;
+  const cleanUrl = url.replace(/\/$/, ""); // 末尾の / を除去
 
-  let llmsStatus = "not_installed";
-
-  try {
-    // timeout付きfetch
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    const res = await fetch(llmsUrl, { signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (res.status === 200) {
-      llmsStatus = "installed";
+  const checkFile = async (path: string) => {
+    try {
+      const res = await fetch(`${cleanUrl}/${path}`);
+      return res.status === 200;
+    } catch {
+      return false;
     }
+  };
 
+  const result = {
+    https: cleanUrl.startsWith("https://"),
+    llms: await checkFile("llms.txt"),
+    robots: await checkFile("robots.txt"),
+    sitemap: await checkFile("sitemap.xml"),
+    favicon: await checkFile("favicon.ico"),
+    structured: false,
+    contentLength: 0,
+  };
+
+  // HTML解析（構造化データ＆文字量）
+  try {
+    const res = await fetch(cleanUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+    const html = await res.text();
+    result.contentLength = html.length;
+    result.structured = html.includes("application/ld+json");
   } catch (e) {
-    llmsStatus = "error";
+    console.error("HTML fetch error", e);
   }
-
-  // ---- スコア判定ロジック ----
-  let score = "C";
-  if (llmsStatus === "installed") score = "B";
-
-  // ---- 仮の診断結果（後でAIに差し替え） ----
-  const issues = [
-    llmsStatus === "not_installed" && "LLMs.txtが未設置",
-    "構造化データが不足",
-    "metaがAI向けに最適化されていない",
-  ].filter(Boolean) as string[];
-
-  const suggestions = [
-    llmsStatus === "not_installed" && "LLMs.txt設置",
-    "構造化データ実装",
-    "CV導線改善",
-  ].filter(Boolean) as string[];
 
   return {
     statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: { "Access-Control-Allow-Origin": "*" },
     body: JSON.stringify({
-      llms: llmsStatus,
-      score,
-      issues,
-      suggestions,
+      success: true,
+      score: "B",
+      techCheck: {
+        https: result.https,
+        llms: result.llms,
+        robots: result.robots,
+        sitemap: result.sitemap,
+        structured: result.structured,
+        favicon: result.favicon,
+        contentLength: result.contentLength,
+      },
+      message: "Technical check completed",
     }),
   };
 };
