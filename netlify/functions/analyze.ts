@@ -42,10 +42,10 @@ export const handler: Handler = async (event) => {
 
   const score =
     (result.https ? 10 : 0) +
-    (result.llms ? 10 : 0) +
+    (result.llms ? 10 : -5) +
     (result.robots ? 15 : 0) +
     (result.sitemap ? 15 : 0) +
-    (result.structured ? 15 : 0) +
+    (result.structured ? 15 : -5) +
     (result.favicon ? 5 : 0) +
     Math.min(result.contentLength / 10000, 1) * 30;
 
