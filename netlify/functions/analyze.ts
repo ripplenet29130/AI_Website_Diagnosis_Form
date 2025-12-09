@@ -163,6 +163,23 @@ const handler: Handler = async (event: HandlerEvent) => {
     try { new URL(url); }
     catch { return { statusCode: 400, body: JSON.stringify({ error: "Invalid URL format" }) }; }
 
+    // LLMs.txt チェック
+    const llmsUrl = `${url.replace(/\/$/, "")}/llms.txt`;
+    let llmsStatus = "not_found";
+    
+    try {
+      const llmsRes = await fetch(llmsUrl, { method: "GET", signal: AbortSignal.timeout(5000) });
+    
+      if (llmsRes.status === 200) {
+        llmsStatus = "installed";
+      } else {
+        llmsStatus = "not_installed";
+      }
+    } catch (e) {
+      llmsStatus = "error";
+    }
+
+    
     // HTML取得
     const res = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
@@ -190,8 +207,11 @@ const handler: Handler = async (event: HandlerEvent) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(result),
-    };
+      body: JSON.stringify({
+    llms: llmsStatus,
+    ai: result,   // 今までのAI診断結果
+  }),
+};
 
   } catch (err: any) {
     console.error("ERROR:", err);
