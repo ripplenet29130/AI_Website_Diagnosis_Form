@@ -40,14 +40,15 @@ export const handler: Handler = async (event) => {
     result.structured = html.includes("application/ld+json");
   } catch {}
 
-  const score =
-    (result.https ? 10 : 0) +
-    (result.llms ? 10 : -5) +
-    (result.robots ? 15 : 0) +
-    (result.sitemap ? 15 : 0) +
-    (result.structured ? 15 : -5) +
-    (result.favicon ? 5 : 0) +
-    Math.min(result.contentLength / 10000, 1) * 30;
+    const score =
+      (result.llms ? 25 : -20) +
+      (result.structured ? 20 : -10) +
+      Math.min(result.contentLength / 10000, 1) * 25 +
+      (result.robots ? 10 : 0) +
+      (result.sitemap ? 10 : 0) +
+      (result.https ? 5 : 0) +
+      (result.favicon ? 5 : 0);
+
 
   return {
     statusCode: 200,
