@@ -1,164 +1,98 @@
-import { useState } from 'react';
-import {
-  Search,
-  Eye,
-  TrendingUp,
-  ThumbsUp,
-  AlertTriangle,
-  Lightbulb,
-  Loader2,
-  Download,
-} from 'lucide-react';
+import { useState } from "react";
+import InputForm from "./components/InputForm";
+import { Loader2 } from "lucide-react";
 
-import InputForm from './components/InputForm';
-import ResultBlock from './components/ResultBlock';
-
-interface AnalysisResult {
-  seo: string;
-  ux: string;
-  conversion: string;
-  strengths: string;
-  weaknesses: string;
-  improvement: string;
+/* ========== 型 ========= */
+interface DiagnosisResult {
+  llms: string;
+  score: string;
+  issues: string[];
+  suggestions: string[];
 }
 
-interface DisplayResult {
-  seo: string[];
-  ux: string[];
-  conversion: string[];
-  strengths: string[];
-  weaknesses: string[];
-  improvements: string[];
-}
+/* APIエンドポイント */
+const NETLIFY_API = "/.netlify/functions/check-llms";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<DisplayResult | null>(null);
-  const [originalResult, setOriginalResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const convertToList = (input: string | string[]): string[] => {
-  // すでに配列なら → 各項目をトリムして返す
-  if (Array.isArray(input)) {
-    return input.map((item) =>
-      item.replace(/^・+/g, "").trim()
-    );
-  }
+  /* ========== 診断処理（LLMs判定） ========== */
+  const handleSubmit = async (url: string) => {
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
 
-  // 文字列なら split して整形
-  return input
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => line.replace(/^・+/g, "")); // ← AIの「・」を削除
-};
-
-const NETLIFY_API = "https://ai-website-diagnosis-form.netlify.app/.netlify/functions";
-
-const handleSubmit = async (url: string) => {
-  setIsLoading(true);
-  setResult(null);
-  setOriginalResult(null);
-  setError(null);
-
-  try {
-    // ① PHP（さくら）に request_id を作成
-    const reqRes = await fetch("https://rip-ple.com/api/create-request.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_url: url }),
-    });
-
-    const reqJson = await reqRes.json();
-    if (!reqJson.success) {
-      throw new Error("リクエスト登録に失敗: " + reqJson.error);
-    }
-
-    const request_id = reqJson.request_id;
-
-    // ② Netlify（AI分析）
-    const aiRes = await fetch(
-      `${NETLIFY_API}/analyze`,
-      {
+    try {
+      const res = await fetch(NETLIFY_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
-      }
-    );
+      });
 
-    if (!aiRes.ok) {
-      throw new Error("AI分析に失敗しました");
+      if (!res.ok) throw new Error("診断APIとの通信に失敗しました");
+
+      const json = await res.json();
+      setResult(json);
+
+    } catch (err: any) {
+      setError(err.message || "エラーが発生しました");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const data = await aiRes.json();
-    setOriginalResult(data);
+  /* =======================================================================
+    🚧 コメントアウトで保持：後で追加する機能
+  ======================================================================== */
 
-    // ③ PHPに結果保存
+  // ---------------------- AI分析機能（後日復帰） ----------------------
+  /*
+  const analyzeWithAI = async (url: string) => {
+    const res = await fetch("/.netlify/functions/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    return await res.json();
+  };
+  */
+
+  // ---------------------- DB保存機能（後日復帰） ----------------------
+  /*
+  const saveToDatabase = async (request_id: string, url: string, result: any) => {
     await fetch("https://rip-ple.com/api/save-result.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        request_id,
-        target_url: url,
-        result: JSON.stringify(data),
-      }),
+      body: JSON.stringify({ request_id, target_url: url, result }),
     });
+  };
+  */
 
-    // ④ 画面表示
-    setResult({
-      seo: convertToList(data.seo),
-      ux: convertToList(data.ux),
-      conversion: convertToList(data.conversion),
-      strengths: convertToList(data.strengths),
-      weaknesses: convertToList(data.weaknesses),
-      improvements: convertToList(data.improvement),
+  // ---------------------- PDF生成（後日復帰） ----------------------
+  /*
+  const downloadPDF = async (originalResult: any) => {
+    const response = await fetch("/.netlify/functions/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result: originalResult }),
     });
-
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "エラーが発生しました");
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
-
-const downloadPDF = async () => {
-  if (!originalResult) return;
-
-  try {
-    const response = await fetch(
-      `${NETLIFY_API}/pdf`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ result: originalResult }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("PDF generation failed");
-    }
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "website_report.pdf";
-    document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  } catch (err) {
-    console.error("PDF download error:", err);
-    alert("PDFのダウンロードに失敗しました");
-  }
-};
-
+  };
+  */
+  /* ======================================================================== */
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
       <div className="max-w-5xl mx-auto space-y-8 result-text">
+        
         <InputForm onSubmit={handleSubmit} isLoading={isLoading} />
 
         {error && (
@@ -170,63 +104,35 @@ const downloadPDF = async () => {
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16">
             <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-            <p className="text-gray-600 font-medium">サイトを分析中です...</p>
+            <p className="text-gray-600 font-medium">分析中です、少々お待ちください...</p>
           </div>
         )}
 
         {result && !isLoading && (
-          <>
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={downloadPDF}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-md hover:shadow-lg"
-              >
-                <Download className="w-5 h-5" />
-                PDFで保存する
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ResultBlock
-              title="SEO分析"
-              icon={Search}
-              content={result.seo}
-              color="blue"
-            />
-            <ResultBlock
-              title="UX/UI分析"
-              icon={Eye}
-              content={result.ux}
-              color="purple"
-            />
-            <ResultBlock
-              title="コンバージョン改善"
-              icon={TrendingUp}
-              content={result.conversion}
-              color="teal"
-            />
-            <ResultBlock
-              title="強み"
-              icon={ThumbsUp}
-              content={result.strengths}
-              color="green"
-            />
-            <ResultBlock
-              title="弱み"
-              icon={AlertTriangle}
-              content={result.weaknesses}
-              color="orange"
-            />
+          <div className="bg-white shadow-md rounded-xl p-8 space-y-6">
 
-            <div className="md:col-span-2">
-              <ResultBlock
-                title="改善提案リスト"
-                icon={Lightbulb}
-                content={result.improvements}
-                color="red"
-              />
+            <h2 className="text-xl font-bold">📊 AI対策診断結果</h2>
+            <p className="text-lg font-medium">現状スコア：{result.score}</p>
+
+            <div>
+              <p className="font-semibold text-gray-800 mb-2">主な課題：</p>
+              <ul className="list-decimal pl-5 space-y-1">
+                {result.issues.map((i, idx) => (
+                  <li key={idx}>{i}</li>
+                ))}
+              </ul>
             </div>
+
+            <div>
+              <p className="font-semibold text-gray-800 mb-2">改善提案（即実行可能）：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                {result.suggestions.map((s, idx) => (
+                  <li key={idx}>{s}</li>
+                ))}
+              </ul>
+            </div>
+
           </div>
-          </>
         )}
       </div>
     </div>
