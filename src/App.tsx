@@ -35,53 +35,57 @@ const tooltipPatterns: Record<string, RegExp> = {
 };
 
 // ----------------------
-// Tooltip 変換関数
+// Tooltip変換関数
 // ----------------------
 function renderWithTooltips(text: string) {
-  let tokens: (string | JSX.Element)[] = [text];
+  let content: (string | JSX.Element)[] = [text];
 
-  Object.entries(tooltipPatterns).forEach(([key, regex]) => {
+  Object.keys(tooltipDictionary).forEach((key) => {
+    const regex = new RegExp(key.replace(".", "\\."), "gi");
     const description = tooltipDictionary[key];
 
-    tokens = tokens.flatMap((chunk, idx) => {
-      if (typeof chunk !== "string") return [chunk];
+    content = content.flatMap((chunk, i) => {
+      if (typeof chunk !== "string") return chunk;
 
       const parts = chunk.split(regex);
       const matches = chunk.match(regex);
 
-      if (!matches) return [chunk];
+      if (!matches) return chunk;
 
-      const next: (string | JSX.Element)[] = [];
+      const newParts: (string | JSX.Element)[] = [];
 
-      parts.forEach((part, i) => {
-        if (part) next.push(part);
+      parts.forEach((part, index) => {
+        if (part) newParts.push(part);
 
-        if (i < matches.length) {
-          next.push(
-            <Tooltip
-              key={`${key}-${idx}-${i}`}
-              label={key}
-              description={description}
-            />
+        if (index < matches.length) {
+          newParts.push(
+            <Tooltip key={`${key}-${i}-${index}`} label={key} description={description} />
           );
         }
       });
 
-      return next;
+      return newParts;
     });
   });
 
-  return <>{tokens}</>;
+  return <>{content}</>;
 }
 
 // ----------------------
-// API 型
+// APIレスポンス型
 // ----------------------
+interface IssueItem {
+  title: string;
+  summary: string;
+  why: string[];
+  risks: string[];
+}
+
 interface AnalyzeResult {
   success: boolean;
   score: number;
   done: string[];
-  issues: string[];
+  issues: IssueItem[];
   improve: string[];
   error?: string;
 }
@@ -96,7 +100,7 @@ function App() {
     "https://ai-website-diagnosis-form.netlify.app/.netlify/functions";
 
   // ----------------------
-  // Submit 処理
+  // 診断送信
   // ----------------------
   const handleSubmit = async () => {
     if (!inputUrl) return;
@@ -114,8 +118,6 @@ function App() {
 
       const json: AnalyzeResult = await res.json();
 
-      console.log("AI RAW RESULT:", json);
-
       if (!res.ok || json.success === false) {
         throw new Error(json.error || "診断に失敗しました");
       }
@@ -128,6 +130,10 @@ function App() {
     }
   };
 
+  // ----------------------
+  // スコアのコメント
+  // ----------------------
+  
   const renderScoreComment = (score: number) => {
     if (score >= 90) return "非常に優秀です（AI検索への最適化が進んでいます）";
     if (score >= 75) return "良好です（さらに強化する余地があります）";
@@ -191,21 +197,19 @@ function App() {
         {/* 結果表示 */}
         {result && !isLoading && (
           <div className="space-y-6">
+
             {/* スコア */}
             <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-blue-500">
               <h3 className="text-xl font-bold mb-2">📊 AI対策スコア</h3>
               <p className="text-3xl font-black">{result.score} / 100</p>
-              <p className="text-gray-600">
-                {renderScoreComment(result.score)}
-              </p>
+              <p className="text-gray-600">{renderScoreComment(result.score)}</p>
             </div>
 
-            {/* できている点（Tooltip 付き） */}
+            {/* -------------------- */}
+            {/* できている点 */}
+            {/* -------------------- */}
             <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-green-500">
-              <h3 className="text-lg font-bold mb-2">
-                🟩 AI対策としてできている点
-              </h3>
-
+              <h3 className="text-lg font-bold mb-2">🟩 AI対策としてできている点</h3>
               <ul className="list-disc ml-6 space-y-1 text-gray-800">
                 {result.done.map((text, i) => (
                   <li key={i}>{renderWithTooltips(text)}</li>
@@ -213,18 +217,43 @@ function App() {
               </ul>
             </div>
 
-            {/* 課題（Tooltip 付き） */}
+            {/* -------------------- */}
+            {/* 課題（構造化データ） */}
+            {/* -------------------- */}
             <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-red-500">
-              <h3 className="text-lg font-bold mb-2">
-                🟥 AI対策としての課題
-              </h3>
+              <h3 className="text-lg font-bold mb-2">🟥 AI対策としての課題</h3>
 
-              <ul className="list-disc ml-6 space-y-1 text-gray-800">
-                {result.issues.map((text, i) => (
-                  <li key={i}>{renderWithTooltips(text)}</li>
-                ))}
-              </ul>
+              {result.issues.map((issue, i) => (
+                <div key={i} className="mb-6 space-y-2">
+
+                  {/* タイトル */}
+                  <p className="font-bold text-gray-900">
+                    ● {renderWithTooltips(issue.title)}
+                  </p>
+
+                  {/* サマリー */}
+                  <p>{renderWithTooltips(issue.summary)}</p>
+
+                  {/* なぜ問題？ */}
+                  <p className="mt-2 font-semibold">▼ なぜ問題？</p>
+                  <ul className="list-disc ml-6">
+                    {issue.why.map((w, j) => (
+                      <li key={j}>{renderWithTooltips(w)}</li>
+                    ))}
+                  </ul>
+
+                  {/* 放置すると？ */}
+                  <p className="mt-2 font-semibold">▼ 放置すると？</p>
+                  <ul className="list-disc ml-6">
+                    {issue.risks.map((r, j) => (
+                      <li key={j}>{renderWithTooltips(r)}</li>
+                    ))}
+                  </ul>
+
+                </div>
+              ))}
             </div>
+
 
           {/* 改善提案（Tooltip 付き） */}
           <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
