@@ -7,17 +7,17 @@ interface TooltipProps {
 
 const Tooltip: React.FC<TooltipProps> = ({ label, description }) => {
   return (
-    <span className="relative group cursor-help font-semibold text-gray-700">
+    <span className="relative group cursor-pointer font-semibold text-blue-700 underline decoration-dotted">
       {label}
 
-      {/* ツールチップ本体 */}
+      {/* Tooltip 本体（右側に表示） */}
       <div
         className="
-          absolute left-1/2 -translate-x-1/2 mt-2
-          opacity-0 pointer-events-none
-          group-hover:opacity-100 group-hover:pointer-events-auto
+          absolute left-full top-1/2 -translate-y-1/2 ml-3
+          opacity-0 group-hover:opacity-100
+          pointer-events-none
           transition-opacity duration-150
-          bg-black text-white text-xs p-2 rounded shadow-lg w-56 z-50
+          bg-black text-white text-xs p-3 rounded shadow-lg w-56 z-50
         "
       >
         {description}
