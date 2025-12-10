@@ -207,39 +207,43 @@ export const handler: Handler = async (event) => {
     }
 
     // ----------------------------------------------------
-    // ⑥ Favicon
+    // ⑥ Favicon（どんな書き方でも拾える強力バージョン）
     // ----------------------------------------------------
+    const lower = html.toLowerCase();
+    
+    // よくある favicon パターンを包括的にチェック
     const hasFavicon =
-      /rel=["']icon["']/i.test(html) ||
-      /rel=["']shortcut icon["']/i.test(html) ||
-      /rel=["']apple-touch-icon["']/i.test(html) ||
-      html.toLowerCase().includes("favicon.ico") ||
-      html.toLowerCase().includes("favicon.png") ||
-      html.toLowerCase().includes("favicon.svg");
-
-
+      // rel 属性に "icon" を含むもの全て（shortcut, mask, apple-touch-icon も捕捉）
+      /<link[^>]+rel=["'][^"']*icon[^"']*["']/i.test(html) ||
+    
+      // ファイル名に favicon.xx が含まれる（ico/png/svgでもOK）
+      /favicon\.(ico|png|svg|jpg|jpeg)/i.test(lower) ||
+    
+      // sizes 属性付きの形式
+      /<link[^>]+sizes=["'][^"']+["'][^>]*icon/i.test(html);
+    
+    
+    // 分岐
     if (!hasFavicon) {
       score -= 5;
-
+    
       issues.push({
         title: "favicon が未設定です",
         summary:
           "favicon は、検索結果やブラウザで表示されるサイトのアイコンです。視覚的な信頼性に大きく影響します。",
         why: ["ユーザーやAIに覚えてもらいにくい"],
-        risks: [
-          "検索結果で埋もれやすい",
-          "ブランドとしての信頼感が損なわれる",
-        ],
+        risks: ["検索結果で埋もれやすい", "ブランドとしての信頼感が損なわれる"],
       });
-
+    
       improve.push({
         title: "faviconを設定して、検索結果での信頼性と認知度を高めましょう",
         summary:
-          "favicon を設定すると、検索結果やブラウザ上での見た目が整い、サイトの信頼性が大きく向上します。ユーザーにも覚えてもらいやすくなり、ブランド力アップに効果的です。",
+          "favicon を設定すると、検索結果やブラウザ上での見た目が整い、サイトの信頼性が向上します。",
       });
     } else {
       done.push("faviconが設定されています");
     }
+
 
     // ----------------------------------------------------
     // ⑦ コンテンツ量
