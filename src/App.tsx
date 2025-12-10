@@ -143,16 +143,17 @@ function App() {
       <div className="max-w-3xl mx-auto space-y-8">
         {/* 入力フォーム */}
         <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">
-            AI時代のWEB対策できていますか？
-            <br />
-            <span className="text-blue-600">あなたのサイトを10秒で診断します。</span>
-          </h2>
-          <p className="text-sm text-gray-500 mt-2">
-            URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要ポイントを自動チェックします。
-          </p>
-
-
+          <h2 className="text-[1.9rem] font-semibold tracking-tight text-gray-900 leading-snug">
+          AI時代のWEB対策できていますか？
+          <br />
+          <span className="text-indigo-600 font-medium tracking-tight">
+            あなたのサイトを10秒で診断します。
+          </span>
+        </h2>
+      
+        <p className="text-sm text-gray-500 leading-relaxed max-w-xl tracking-wide">
+          URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要ポイントを自動チェックします。
+        </p>
           <input
             type="text"
             placeholder="https://example.com"
