@@ -220,16 +220,29 @@ function App() {
               </ul>
             </div>
 
-            {/* 改善提案（Tooltip 付き） */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
-              <h3 className="text-lg font-bold mb-2">💡 AI時代の改善提案</h3>
+          {/* 改善提案（Tooltip 付き） */}
+          <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
+            <h3 className="text-lg font-bold mb-2">💡 AI時代の改善提案</h3>
+          
+            <ul className="list-disc ml-6 space-y-1 text-gray-800">
+              {result.improve.map((text, i) => (
+                <li key={i}>{renderWithTooltips(text)}</li>
+              ))}
+            </ul>
+          
+            {/* 🔵 復活させた CTA ボタン */}
+            <button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-6"
+              onClick={() =>
+                alert(
+                  "お問い合わせフォームURLは準備中です。設定後にこちらから遷移するように変更できます。"
+                )
+              }
+            >
+              AI対策の具体的な改善案について相談する
+            </button>
+          </div>
 
-              <ul className="list-disc ml-6 space-y-1 text-gray-800">
-                {result.improve.map((text, i) => (
-                  <li key={i}>{renderWithTooltips(text)}</li>
-                ))}
-              </ul>
-            </div>
           </div>
         )}
       </div>
