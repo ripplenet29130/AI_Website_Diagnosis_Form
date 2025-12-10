@@ -76,7 +76,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "LLMs.txt の改善提案",
+        title: "LLMs.txtを設置して、AIに正しい情報を伝えましょう",
         summary:
           "LLMs.txt を設置することで、AI に “サイトのどの部分を参照してよいか” を正しく伝えられるようになります。AI検索で情報が拾われやすくなり、サイトの露出アップにつながります。",
       });
@@ -109,7 +109,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "robots.txt の改善提案",
+        title: "robots.txt を設定して、AIに巡回ルールを伝えましょう",
         summary:
           "robots.txt を設定すると、AI や検索エンジンに「見てよいページ／見てはいけないページ」を明確に伝えられます。重要なページをしっかり評価してもらいやすくなり、SEO の土台が整います。",
       });
@@ -142,7 +142,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "sitemap.xml の改善提案",
+        title: "sitemap.xml を用意して、AIにページ構造を伝えましょう",
         summary:
           "sitemap.xml を設置すると、サイト内のページを確実に AI・検索エンジンへ届けられるようになります。新しいページもすぐ認識され、集客効果が安定して高まります。",
       });
@@ -169,7 +169,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "HTTPS（SSL）の改善提案",
+        title: "HTTPSを有効化して、安全なサイトであることを伝えましょう",
         summary:
           "SSL 対応を行うことで、ブラウザにも AI にも「安全なサイト」と判断されるようになります。ユーザーの信頼性が上がり、検索評価の改善にも直結します。",
       });
@@ -198,9 +198,9 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "JSON-LD の改善提案",
+        title: "JSON-LDを追加して、AIに内容を正しく伝えましょう",
         summary:
-          "構造化データ（JSON-LD）を追加することで、AI にページの内容を正しく理解させることができます。その結果、AI 検索や Google の強調表示で取り上げられやすくなります。",
+          "構造化データ（JSON-LD）を追加することで、AI にページの内容を正しく理解させることができます。その結果、AI検索やGoogleの強調表示で取り上げられやすくなります。",
       });
     } else {
       done.push("構造化データ（JSON-LD）が利用されています");
@@ -233,7 +233,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "favicon の改善提案",
+        title: "faviconを設定して、サイトの信頼性を高めましょう",
         summary:
           "favicon を設定すると、検索結果やブラウザ上での見た目が整い、サイトの信頼性が大きく向上します。ユーザーにも覚えてもらいやすくなり、ブランド力アップに効果的です。",
       });
@@ -259,7 +259,7 @@ export const handler: Handler = async (event) => {
       });
 
       improve.push({
-        title: "コンテンツ量の改善提案",
+        title: "文章量を増やして、AIに内容をしっかり伝えましょう",
         summary:
           "ページ内の文章量を増やすことで、AI に「専門的で価値のあるサイト」だと判断されやすくなります。AI からの引用・検索順位の向上につながり、アクセスアップに直結します。",
       });
