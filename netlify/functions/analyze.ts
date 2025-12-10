@@ -24,7 +24,7 @@ export const handler: Handler = async (event) => {
     const robotsUrl = `${target}/robots.txt`;
     const sitemapUrl = `${target}/sitemap.xml`;
 
-    // ========== HTML 取得 ==========
+    // ========== HTML取得 ==========
     let html = "";
     try {
       const res = await fetch(target, {
@@ -43,130 +43,109 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    // ========== LLMs.txt ==========
+    // ==========================================
+    // 🟥 ① LLMs.txt
+    // ==========================================
     let llmsInstalled = false;
     try {
       const res = await fetch(llmsUrl);
       if (res.status === 200) llmsInstalled = true;
     } catch {}
+
     if (!llmsInstalled) {
       score -= 30;
-      issues.push("LLMs.txtが未設置です");
+
+      issues.push(
+        "LLMs.txt がないため、AI に「どのページを見てもいいのか」が伝わっていません。\n" +
+          "その結果、あなたのサイトの内容が AI に正しく読まれず、紹介されにくくなっています。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・AI（Bing・Google・ChatGPT など）がサイト内容をほぼ拾ってくれない\n" +
+          "・本来見せたくないページまで AI に見られる可能性がある\n" +
+          "・ライバルだけが AI に取り上げられて差がつく"
+      );
+
       improve.push(
-        "LLMs.txtを設置し、AI検索に対してコンテンツの公開範囲を明確にしましょう"
+        "LLMs.txt を設置することで、AI に参照してよいページを正しく伝えられます。AI検索でサイト情報を拾ってもらいやすくなり、露出アップにつながります。"
       );
     } else {
-      done.push("LLMs.txtが設置されています");
+      done.push("LLMs.txt が設置されています");
     }
 
-    // ========== robots.txt ==========
+    // ==========================================
+    // 🟥 ② robots.txt
+    // ==========================================
     let robotsInstalled = false;
     try {
       const res = await fetch(robotsUrl);
       if (res.status === 200) robotsInstalled = true;
     } catch {}
+
     if (!robotsInstalled) {
       score -= 10;
-      issues.push("robots.txtが未設定です");
+
+      issues.push(
+        "robots.txt がないため、検索エンジンや AI が「見てよい／見てはいけない」ページを判断できません。重要なページが正しく評価されない可能性があります。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・必要なページが検索に出てこないことがある\n" +
+          "・管理画面など “見せたくない部分” が読み取られる危険がある\n" +
+          "・AI が正しい情報を把握できず、競合と差が開く"
+      );
+
       improve.push(
-        "robots.txtを設置して、AIクローラーや検索エンジンの巡回を適切に制御しましょう"
+        "robots.txt を設置すると、AI や検索エンジンがサイトを正しく巡回できるようになります。重要なページが適切に評価され、SEO の基盤も整います。"
       );
     } else {
-      done.push("robots.txtが設定されています");
+      done.push("robots.txt が設定されています");
     }
 
-    // ========== sitemap.xml ==========
+    // ==========================================
+    // 🟥 ③ sitemap.xml
+    // ==========================================
     let sitemapInstalled = false;
     try {
       const res = await fetch(sitemapUrl);
       if (res.status === 200) sitemapInstalled = true;
     } catch {}
+
     if (!sitemapInstalled) {
       score -= 10;
-      issues.push("sitemap.xmlが見つかりません");
+
+      issues.push(
+        "sitemap.xml（サイトの地図）がないため、AI や検索エンジンがページを見つけにくい状態です。大事なページが気づかれず、正しく評価されません。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・新しいページが検索や AI に認識されない\n" +
+          "・サイト全体の構造が正しく伝わらず評価が上がらない\n" +
+          "・ライバルサイトより検索順位が下がる"
+      );
+
       improve.push(
-        "sitemap.xmlを設置し、重要なページ構造を検索エンジンやAIクローラーに伝えましょう"
+        "sitemap.xml を設置することで、AI・Google にサイト内の全ページを正しく届けられます。重要なページが確実に認識され、集客効果が高まります。"
       );
     } else {
-      done.push("sitemap.xmlが登録されています");
+      done.push("sitemap.xml が登録されています");
     }
 
-    // ========== HTTPS ==========
+    // ==========================================
+    // 🟥 ④ HTTPS（SSL）
+    // ==========================================
     if (!target.startsWith("https://")) {
       score -= 10;
-      issues.push("HTTPS通信に対応していません");
+
+      issues.push(
+        "HTTPS（SSL）が未対応のため、ブラウザで「安全ではありません」と表示される場合があります。AI にも信頼性の低いサイトと判断されます。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・ユーザーが不安になり離脱しやすくなる\n" +
+          "・Google や AI の評価が下がる\n" +
+          "・問い合わせや購入などのアクション率が落ちる"
+      );
+
       improve.push(
-        "SSL対応を行い、ユーザーと検索エンジンの両方から信頼されるサイトにしましょう"
+        "SSL 対応を行うことで、ユーザーにも AI にも『安全なサイト』として判断されます。信頼性が向上し、検索評価にも良い影響があります。"
       );
     } else {
       done.push("HTTPS通信に対応済みです");
     }
 
-    // ========== JSON-LD（構造化データ） ==========
-    const hasJsonLD = html.includes("application/ld+json");
-    if (!hasJsonLD) {
-      score -= 20;
-      issues.push("構造化データ（JSON-LD）が未設定です");
-      improve.push(
-        "構造化データ（JSON-LD）を追加し、AIにページ内容の意味を正確に伝えましょう"
-      );
-    } else {
-      done.push("構造化データ（JSON-LD）が利用されています");
-    }
-
-    // ========== favicon ==========
-    const hasFavicon =
-      html.includes('rel="icon"') ||
-      html.includes("rel='icon'") ||
-      html.includes("rel=\"shortcut icon\"") ||
-      html.includes("rel='shortcut icon'") ||
-      html.toLowerCase().includes("favicon.ico");
-
-    if (!hasFavicon) {
-      score -= 5;
-      issues.push("faviconが未設定です");
-      improve.push(
-        "faviconを設定し、ブラウザや検索結果でのブランド認知を高めましょう"
-      );
-    } else {
-      done.push("faviconが設定されています");
-    }
-
-    // ========== コンテンツ量 ==========
-    // 1万文字未満なら減点（配点15）
-    if (html.length < 10000) {
-      score -= 15;
-      issues.push("コンテンツ量が少なく、AIが十分に学習・引用しにくい状態です");
-      improve.push(
-        "専門性の高いコンテンツを増やし、AIに参照されやすい情報量を確保しましょう"
-      );
-    } else {
-      done.push("コンテンツ量が十分で、AIに引用されやすい土台があります");
-    }
-
-    // スコアは 0〜100 に丸める
-    score = Math.max(0, Math.min(100, score));
-
-    return {
-      statusCode: 200,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({
-        success: true,
-        score,
-        done,
-        issues,
-        improve,
-      }),
-    };
-  } catch (e) {
-    console.error("Unexpected error:", e);
-    return {
-      statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({
-        success: false,
-        error: "サーバー側でエラーが発生しました",
-      }),
-    };
-  }
-};
+    // ==========================================
+    // 🟥 ⑤ JSON-LD（構造化データ）
+    /
