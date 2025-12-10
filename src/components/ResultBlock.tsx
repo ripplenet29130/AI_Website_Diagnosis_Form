@@ -23,47 +23,43 @@ const tooltipDictionary: Record<string, string> = {
   favicon:
     "サイトのアイコンです。ブランド認識や検索結果での視認性に影響します。",
   "LLMs.txt":
-    "AI クローラに“どのページをAI学習に使ってよいか”を指示する新しい仕様のファイルです。",
+    "AI クローラに“どのページをAI学習に使ってよいか”を指示するためのファイルです。",
 };
 
-// -------------------------
-// 🔍 文章中のキーワードを Tooltip に置換する関数
-// -------------------------
-function applyTooltip(text: string) {
-  let modified = text;
+// ---------------------------------------------
+// 🔍 一つのテキスト内のキーワードを Tooltip に差し替える
+// ---------------------------------------------
+function renderWithTooltips(text: string) {
+  const elements: JSX.Element[] = [];
+  let remaining = text;
 
   Object.keys(tooltipDictionary).forEach((key) => {
-    const regex = new RegExp(`\\b${key}\\b`, "g"); // 単語一致
-    modified = modified.replace(
-      regex,
-      `<tooltip label="${key}" />`
-    );
+    const regex = new RegExp(key, "g");
+
+    remaining = remaining.replace(regex, `[[[${key}]]]`);
   });
 
-  return modified;
-}
+  // 分割
+  const parts = remaining.split(/(\[\[\[.*?\]\]\])/g);
 
-// ----------------------------
-// 🔍 Tooltip を含む文字列を React に変換する
-// ----------------------------
-function renderWithTooltips(text: string) {
-  const parts = text.split(/(<tooltip.*?\/>)/g);
+  parts.forEach((part, i) => {
+    const match = part.match(/\[\[\[(.*?)\]\]\]/);
 
-  return parts.map((part, i) => {
-    if (part.startsWith("<tooltip")) {
-      const labelMatch = part.match(/label="(.*?)"/);
-      const label = labelMatch ? labelMatch[1] : "";
-
-      return (
+    if (match) {
+      const keyword = match[1];
+      elements.push(
         <Tooltip
           key={i}
-          label={label}
-          description={tooltipDictionary[label]}
+          label={keyword}
+          description={tooltipDictionary[keyword]}
         />
       );
+    } else {
+      elements.push(<span key={i}>{part}</span>);
     }
-    return <span key={i}>{part}</span>;
   });
+
+  return <>{elements}</>;
 }
 
 export default function ResultBlock({
@@ -92,13 +88,14 @@ export default function ResultBlock({
 
       {Array.isArray(content) ? (
         <ul className="space-y-2">
-          {content.map((item, i) => {
-            const replaced = applyTooltip(item);
-            return <li key={i}>{renderWithTooltips(replaced)}</li>;
-          })}
+          {content.map((item, i) => (
+            <li key={i} className="leading-relaxed">
+              {renderWithTooltips(item)}
+            </li>
+          ))}
         </ul>
       ) : (
-        <p>{renderWithTooltips(applyTooltip(content))}</p>
+        <p>{renderWithTooltips(content)}</p>
       )}
     </div>
   );
