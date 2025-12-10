@@ -153,7 +153,7 @@ function App() {
           AI時代のWEB対策できていますか？
           <br />
           <span className="text-indigo-600 font-medium tracking-tight">
-            あなたのサイトを10秒で診断します。
+            あなたのサイトを10秒で診断。
           </span>
         </h2>
       
