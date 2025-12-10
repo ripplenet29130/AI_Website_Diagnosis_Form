@@ -9,7 +9,7 @@ interface ResultBlockProps {
 }
 
 // -------------------------
-// 🔍 Tooltip 辞書（ここを編集すると一覧が更新される）
+// 🔍 Tooltip 辞書（表示用ラベル）
 // -------------------------
 const tooltipDictionary: Record<string, string> = {
   "robots.txt":
@@ -26,47 +26,59 @@ const tooltipDictionary: Record<string, string> = {
     "AI クローラに“どのページをAI学習に使ってよいか”を指示するためのファイルです。",
 };
 
-// ---------------------------------------------
-// 🔍 一つのテキスト内のキーワードを Tooltip に差し替える
-// ---------------------------------------------
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+// -------------------------
+// 🔍 実際にマッチに使うパターン
+// 　・robots. txt / robots．txt などの揺れも許容
+// -------------------------
+const tooltipPatterns: Record<string, RegExp> = {
+  "robots.txt": /robots[．.] ?txt/gi,
+  "sitemap.xml": /sitemap[．.] ?xml/gi,
+  HTTPS: /HTTPS/gi,
+  "JSON-LD": /JSON-?LD/gi,
+  favicon: /favicon/gi,
+  "LLMs.txt": /LLMs[．.] ?txt/gi,
+};
 
+// ---------------------------------------------
+// 🔍 テキスト内のキーワードを Tooltip に差し替える
+// ---------------------------------------------
 function renderWithTooltips(text: string) {
-  const elements: JSX.Element[] = [];
-  let remaining = text;
+  // 途中で React 要素が混ざるので string | JSX.Element の配列で持つ
+  let tokens: (string | JSX.Element)[] = [text];
 
-  Object.keys(tooltipDictionary).forEach((key) => {
-    const escaped = escapeRegExp(key); // ← ここ重要！
-    const regex = new RegExp(escaped, "g");
+  Object.entries(tooltipPatterns).forEach(([key, regex]) => {
+    const description = tooltipDictionary[key];
 
-    remaining = remaining.replace(regex, `[[[${key}]]]`);
+    tokens = tokens.flatMap((chunk, chunkIndex) => {
+      if (typeof chunk !== "string") return [chunk];
+
+      const parts = chunk.split(regex);         // 文字列をキーワードで分割
+      const matches = chunk.match(regex);       // 何回出てくるか
+      if (!matches) return [chunk];
+
+      const next: (string | JSX.Element)[] = [];
+
+      parts.forEach((part, i) => {
+        if (part) next.push(part);              // キーワード以外の文字列
+
+        if (i < matches.length) {
+          // キーワード部分は Tooltip に差し替え
+          next.push(
+            <Tooltip
+              key={`${key}-${chunkIndex}-${i}`}
+              label={key}
+              description={description}
+            />
+          );
+        }
+      });
+
+      return next;
+    });
   });
 
-  // 分割
-  const parts = remaining.split(/(\[\[\[.*?\]\]\])/g);
-
-  parts.forEach((part, i) => {
-    const match = part.match(/\[\[\[(.*?)\]\]\]/);
-
-    if (match) {
-      const keyword = match[1];
-      elements.push(
-        <Tooltip
-          key={i}
-          label={keyword}
-          description={tooltipDictionary[keyword]}
-        />
-      );
-    } else {
-      elements.push(<span key={i}>{part}</span>);
-    }
-  });
-
-  return <>{elements}</>;
+  return <>{tokens}</>;
 }
-
 
 export default function ResultBlock({
   title,
