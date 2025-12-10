@@ -228,7 +228,7 @@ function App() {
 
                   {/* タイトル */}
                   <p className="font-bold text-gray-900">
-                    ● {renderWithTooltips(issue.title)}
+                    ✕ {renderWithTooltips(issue.title)}
                   </p>
 
                   {/* サマリー */}
@@ -254,16 +254,20 @@ function App() {
               ))}
             </div>
 
+            {/* ========================= */}
+            {/* 改善提案（improve） */}
+            {/* ========================= */}
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
+              <h3 className="text-lg font-bold mb-2">💡 改善提案</h3>
 
-          {/* 改善提案（Tooltip 付き） */}
-          <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
-            <h3 className="text-lg font-bold mb-2">💡 AI時代の改善提案</h3>
-          
-            <ul className="list-disc ml-6 space-y-1 text-gray-800">
-              {result.improve.map((text, i) => (
-                <li key={i}>{renderWithTooltips(text)}</li>
+              {result.improve.map((item, i) => (
+                <div key={i} className="mb-6">
+                <p className="font-bold text-gray-900">◎ {item.title}</p>
+                <p className="text-gray-800 leading-relaxed mt-1">
+                  {item.summary}
+                </p>
+                </div>
               ))}
-            </ul>
           
             {/* 🔵 復活させた CTA ボタン */}
             <button
