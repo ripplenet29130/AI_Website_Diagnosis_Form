@@ -10,7 +10,7 @@ const Tooltip: React.FC<TooltipProps> = ({ label, description }) => {
   return (
     <span className="relative group inline-flex items-center gap-1">
       {/* ラベル部分（青＋下線） */}
-      <span className="text-blue-700 underline decoration-dotted cursor-pointer">
+        <span className="relative group cursor-pointer font-semibold text-blue-700 underline decoration-dotted">
         {label}
       </span>
 
