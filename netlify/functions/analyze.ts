@@ -8,6 +8,11 @@ interface IssueItem {
   risks: string[];
 }
 
+interface ImproveItem {
+  title: string;
+  summary: string;
+}
+
 export const handler: Handler = async (event) => {
   try {
     const { url } = JSON.parse(event.body || "{}");
@@ -25,7 +30,7 @@ export const handler: Handler = async (event) => {
     let score = 100;
     const done: string[] = [];
     const issues: IssueItem[] = [];
-    const improve: string[] = [];
+    const improve: ImproveItem[] = [];
 
     const llmsUrl = `${target}/llms.txt`;
     const robotsUrl = `${target}/robots.txt`;
@@ -62,9 +67,7 @@ export const handler: Handler = async (event) => {
         title: "LLMs.txt が未設置です",
         summary:
           "LLMs.txt は、AIに「どのページを見てよいか」を伝えるための重要なファイルです。これが無いと、AI があなたのサイトを正しく理解できません。",
-        why: [
-          "AI がサイト内容を誤認し、紹介されにくくなる",
-        ],
+        why: ["AI がサイト内容を誤認し、紹介されにくくなる"],
         risks: [
           "AI（Bing/Google/ChatGPT）が内容をほぼ拾わない",
           "見せたくないページまで AI に見られる可能性がある",
@@ -72,7 +75,11 @@ export const handler: Handler = async (event) => {
         ],
       });
 
-      improve.push("LLMs.txtを設置し、AIに参照してほしいページを明確に伝えましょう。");
+      improve.push({
+        title: "LLMs.txt の改善提案",
+        summary:
+          "LLMs.txt を設置することで、AI に “サイトのどの部分を参照してよいか” を正しく伝えられるようになります。AI検索で情報が拾われやすくなり、サイトの露出アップにつながります。",
+      });
     } else {
       done.push("LLMs.txtが設置されています");
     }
@@ -93,17 +100,19 @@ export const handler: Handler = async (event) => {
         title: "robots.txt が未設定です",
         summary:
           "robots.txt は、AI や検索エンジンに「どのページをクロールしてよいか」を伝える設定ファイルです。これが無いと、AI がサイト全体を正しく巡回できません。",
-        why: [
-          "重要ページを AI が見落とし、正しく評価されなくなる",
-        ],
+        why: ["重要ページを AI が見落とし、正しく評価されなくなる"],
         risks: [
           "不要なページばかりクロールされる可能性がある",
-          "重要ページが AI に見てもらえず、評価されない",
+          "重要ページが AI に見てもらえない",
           "AI検索での露出が安定しない",
         ],
       });
 
-      improve.push("robots.txt を設置して、クロール制御を適切に行いましょう。");
+      improve.push({
+        title: "robots.txt の改善提案",
+        summary:
+          "robots.txt を設定すると、AI や検索エンジンに「見てよいページ／見てはいけないページ」を明確に伝えられます。重要なページをしっかり評価してもらいやすくなり、SEO の土台が整います。",
+      });
     } else {
       done.push("robots.txtが設定されています");
     }
@@ -124,17 +133,19 @@ export const handler: Handler = async (event) => {
         title: "sitemap.xml が未設置です",
         summary:
           "sitemap.xml は、サイト内のページ構造を AI や検索エンジンに伝える地図のようなものです。これが無いと、AI が重要なページを発見しづらくなります。",
-        why: [
-          "AI が全ページを把握できず、内容が評価されにくい",
-        ],
+        why: ["AI が全ページを把握できず、内容が評価されにくい"],
         risks: [
-          "新しいページが AI に認識されるのが遅れる",
-          "重要ページが AI に理解されず、検索露出が低下する",
-          "ライバルサイトとの差が広がる可能性がある",
+          "新しいページが認識されるのが遅れる",
+          "重要ページの検索露出が低下する",
+          "競合との差が広がりやすい",
         ],
       });
 
-      improve.push("sitemap.xml を設置し、AIにページ構造を正しく伝えましょう。");
+      improve.push({
+        title: "sitemap.xml の改善提案",
+        summary:
+          "sitemap.xml を設置すると、サイト内のページを確実に AI・検索エンジンへ届けられるようになります。新しいページもすぐ認識され、集客効果が安定して高まります。",
+      });
     } else {
       done.push("sitemap.xmlが登録されています");
     }
@@ -148,18 +159,20 @@ export const handler: Handler = async (event) => {
       issues.push({
         title: "HTTPS（SSL）が未対応です",
         summary:
-          "HTTPS は、通信を暗号化して安全にする仕組みです。未対応だと、AI や検索エンジンから「安全でないサイト」と判断されます。",
-        why: [
-          "ユーザーと AI の両方から信用されにくくなる",
-        ],
+          "HTTPS は、通信を暗号化して安全にする仕組みです。未対応だと、AI や検索エンジンから安全でないと判断されます。",
+        why: ["ユーザーと AI の両方から信頼されにくくなる"],
         risks: [
-          "AI がコンテンツを優先的に扱ってくれない",
+          "AI がコンテンツを優先的に扱わない",
           "ブラウザ警告でユーザー離脱が増える",
-          "検索順位が下がる可能性がある",
+          "検索順位が下がるリスクが高まる",
         ],
       });
 
-      improve.push("HTTPS（SSL対応）を行い、安全で信頼されるサイトに整えましょう。");
+      improve.push({
+        title: "HTTPS（SSL）の改善提案",
+        summary:
+          "SSL 対応を行うことで、ブラウザにも AI にも「安全なサイト」と判断されるようになります。ユーザーの信頼性が上がり、検索評価の改善にも直結します。",
+      });
     } else {
       done.push("HTTPS通信に対応済みです");
     }
@@ -175,18 +188,20 @@ export const handler: Handler = async (event) => {
       issues.push({
         title: "構造化データ（JSON-LD）が未設定です",
         summary:
-          "JSON-LD は、AI に「このページは何について書かれているか」を正確に伝えるためのデータです。未設定だと、AI が内容を深く理解できません。",
-        why: [
-          "AI がページ内容を正しく把握できず、紹介・引用されにくい",
-        ],
+          "JSON-LD は、AI にページ内容を正確に伝える重要なデータ形式です。未設定だと、AI が内容を深く理解できません。",
+        why: ["ページ内容を正しく理解してもらえず、引用されにくい"],
         risks: [
-          "AI検索でライバルに負けやすくなる",
-          "専門性が正しく認識されない",
-          "リッチリザルトに表示されず、クリック率が下がる",
+          "AI検索で競合に負けやすい",
+          "専門性が正しく伝わらない",
+          "リッチリザルトに表示されずクリック率が落ちる",
         ],
       });
 
-      improve.push("JSON-LD を追加し、ページの内容を AI に正確に伝えましょう。");
+      improve.push({
+        title: "JSON-LD の改善提案",
+        summary:
+          "構造化データ（JSON-LD）を追加することで、AI にページの内容を正しく理解させることができます。その結果、AI 検索や Google の強調表示で取り上げられやすくなります。",
+      });
     } else {
       done.push("構造化データ（JSON-LD）が利用されています");
     }
@@ -197,8 +212,6 @@ export const handler: Handler = async (event) => {
     const hasFavicon =
       html.includes('rel="icon"') ||
       html.includes("rel='icon'") ||
-      html.includes('rel="shortcut icon"') ||
-      html.includes("rel='shortcut icon'") ||
       html.toLowerCase().includes("favicon.ico");
 
     if (!hasFavicon) {
@@ -207,17 +220,19 @@ export const handler: Handler = async (event) => {
       issues.push({
         title: "favicon が未設定です",
         summary:
-          "favicon は、検索結果やブラウザで表示されるサイトのアイコンです。ブランド認知を高め、視覚的に識別されやすくします。",
-        why: [
-          "AI やユーザーに覚えてもらいにくい",
-        ],
+          "favicon は、検索結果やブラウザで表示されるサイトのアイコンです。視覚的な信頼性に大きく影響します。",
+        why: ["ユーザーやAIに覚えてもらいにくい"],
         risks: [
-          "検索結果でサイトが埋もれやすくなる",
+          "検索結果で埋もれやすい",
           "ブランドとしての信頼感が損なわれる",
         ],
       });
 
-      improve.push("favicon を設定し、サイトの信頼性と認知度を高めましょう。");
+      improve.push({
+        title: "favicon の改善提案",
+        summary:
+          "favicon を設定すると、検索結果やブラウザ上での見た目が整い、サイトの信頼性が大きく向上します。ユーザーにも覚えてもらいやすくなり、ブランド力アップに効果的です。",
+      });
     } else {
       done.push("faviconが設定されています");
     }
@@ -231,24 +246,24 @@ export const handler: Handler = async (event) => {
       issues.push({
         title: "コンテンツ量が不足しています",
         summary:
-          "AI は情報量の多いサイトを「信頼できる情報源」として扱います。ページ全体の文章量が少ないと、AI が学習しづらくなります。",
-        why: [
-          "AI が内容を十分に理解できず、引用されにくい",
-        ],
+          "AI は情報量の多いサイトを信頼しやすい傾向があります。文章量が少ないと、AIが内容を十分に理解できません。",
+        why: ["AI に専門性が伝わらず、引用されにくくなる"],
         risks: [
-          "AI検索で重要キーワードに表示されにくくなる",
-          "専門性が伝わらず、競合に負けやすくなる",
+          "検索順位が伸びにくい",
+          "競合に内容面で負けやすくなる",
         ],
       });
 
-      improve.push("専門性の高いコンテンツを増やし、AIに評価されやすい情報量を確保しましょう。");
+      improve.push({
+        title: "コンテンツ量の改善提案",
+        summary:
+          "ページ内の文章量を増やすことで、AI に「専門的で価値のあるサイト」だと判断されやすくなります。AI からの引用・検索順位の向上につながり、アクセスアップに直結します。",
+      });
     } else {
-      done.push("コンテンツ量が十分で、AIに引用されやすい土台があります");
+      done.push("十分なコンテンツ量があります");
     }
 
-    // ==============================
     // スコア丸め
-    // ==============================
     score = Math.max(0, Math.min(100, score));
 
     return {
