@@ -228,8 +228,10 @@ function App() {
 
                   {/* タイトル */}
                   <p className="font-bold text-gray-900">
-                    ✕ {renderWithTooltips(issue.title)}
+                    <span className="text-red-600">✕</span>{" "}
+                    {renderWithTooltips(issue.title)}
                   </p>
+
 
                   {/* サマリー */}
                   <p>{renderWithTooltips(issue.summary)}</p>
