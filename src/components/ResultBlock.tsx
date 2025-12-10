@@ -29,12 +29,17 @@ const tooltipDictionary: Record<string, string> = {
 // ---------------------------------------------
 // 🔍 一つのテキスト内のキーワードを Tooltip に差し替える
 // ---------------------------------------------
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function renderWithTooltips(text: string) {
   const elements: JSX.Element[] = [];
   let remaining = text;
 
   Object.keys(tooltipDictionary).forEach((key) => {
-    const regex = new RegExp(key, "g");
+    const escaped = escapeRegExp(key); // ← ここ重要！
+    const regex = new RegExp(escaped, "g");
 
     remaining = remaining.replace(regex, `[[[${key}]]]`);
   });
@@ -61,6 +66,7 @@ function renderWithTooltips(text: string) {
 
   return <>{elements}</>;
 }
+
 
 export default function ResultBlock({
   title,
