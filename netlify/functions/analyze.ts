@@ -210,9 +210,13 @@ export const handler: Handler = async (event) => {
     // ⑥ Favicon
     // ----------------------------------------------------
     const hasFavicon =
-      html.includes('rel="icon"') ||
-      html.includes("rel='icon'") ||
-      html.toLowerCase().includes("favicon.ico");
+      /rel=["']icon["']/i.test(html) ||
+      /rel=["']shortcut icon["']/i.test(html) ||
+      /rel=["']apple-touch-icon["']/i.test(html) ||
+      html.toLowerCase().includes("favicon.ico") ||
+      html.toLowerCase().includes("favicon.png") ||
+      html.toLowerCase().includes("favicon.svg");
+
 
     if (!hasFavicon) {
       score -= 5;
