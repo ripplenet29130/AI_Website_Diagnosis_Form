@@ -1,4 +1,5 @@
 import React from "react";
+import { HelpCircle } from "lucide-react"; // ← アイコン追加（lucide-react）
 
 interface TooltipProps {
   label: string;
@@ -7,10 +8,19 @@ interface TooltipProps {
 
 const Tooltip: React.FC<TooltipProps> = ({ label, description }) => {
   return (
-    <span className="relative group cursor-pointer font-semibold text-blue-700 underline decoration-dotted">
-      {label}
+    <span className="relative group inline-flex items-center gap-1">
+      {/* ラベル部分（青＋下線） */}
+      <span className="text-blue-700 underline decoration-dotted cursor-pointer">
+        {label}
+      </span>
 
-      {/* Tooltip 本体（右側に表示） */}
+      {/* ? アイコン */}
+      <HelpCircle
+        size={16}
+        className="text-blue-500 cursor-pointer group-hover:text-blue-700"
+      />
+
+      {/* Tooltip 本体（右側表示） */}
       <div
         className="
           absolute left-full top-1/2 -translate-y-1/2 ml-3
