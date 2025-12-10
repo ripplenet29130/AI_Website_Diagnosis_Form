@@ -8,6 +8,64 @@ interface ResultBlockProps {
   color: string;
 }
 
+// -------------------------
+// 🔍 Tooltip 辞書（ここを編集すると一覧が更新される）
+// -------------------------
+const tooltipDictionary: Record<string, string> = {
+  "robots.txt":
+    "検索エンジンにクロールしてよいページを伝える設定ファイルです。AI クローラにも重要です。",
+  "sitemap.xml":
+    "サイト内のページ一覧を検索エンジンに伝えるための XML ファイルです。AI にも理解されやすくなります。",
+  HTTPS:
+    "通信が暗号化されている安全なサイトとして、検索エンジンに評価されやすくなります。",
+  "JSON-LD":
+    "構造化データ形式です。AI にページ内容を正確に伝えるために重要です。",
+  favicon:
+    "サイトのアイコンです。ブランド認識や検索結果での視認性に影響します。",
+  "LLMs.txt":
+    "AI クローラに“どのページをAI学習に使ってよいか”を指示する新しい仕様のファイルです。",
+};
+
+// -------------------------
+// 🔍 文章中のキーワードを Tooltip に置換する関数
+// -------------------------
+function applyTooltip(text: string) {
+  let modified = text;
+
+  Object.keys(tooltipDictionary).forEach((key) => {
+    const regex = new RegExp(`\\b${key}\\b`, "g"); // 単語一致
+    modified = modified.replace(
+      regex,
+      `<tooltip label="${key}" />`
+    );
+  });
+
+  return modified;
+}
+
+// ----------------------------
+// 🔍 Tooltip を含む文字列を React に変換する
+// ----------------------------
+function renderWithTooltips(text: string) {
+  const parts = text.split(/(<tooltip.*?\/>)/g);
+
+  return parts.map((part, i) => {
+    if (part.startsWith("<tooltip")) {
+      const labelMatch = part.match(/label="(.*?)"/);
+      const label = labelMatch ? labelMatch[1] : "";
+
+      return (
+        <Tooltip
+          key={i}
+          label={label}
+          description={tooltipDictionary[label]}
+        />
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 export default function ResultBlock({
   title,
   icon: Icon,
@@ -23,42 +81,7 @@ export default function ResultBlock({
     teal: "bg-teal-50 border-teal-200 text-teal-700",
   };
 
-  const colorClass =
-    colorClasses[color as keyof typeof colorClasses] || colorClasses.blue;
-
-  // 🔍 専門用語 → 説明の辞書（ここを追加）
-  const glossary: Record<string, string> = {
-    "LLMs.txt":
-      "AIに対して『サイト内のどこを学習・参照してよいか』を明示するための新しい設定ファイルです。",
-    "robots.txt":
-      "AI・検索エンジンに『どのページをクロールしてよいか』を伝えるファイルです。",
-    "sitemap.xml":
-      "サイトの全URLを検索エンジンへ知らせるリストで、AIにも有効です。",
-    HTTPS:
-      "通信内容を暗号化し、AIや検索エンジンの評価にも影響します。",
-    "JSON-LD":
-      "AIが内容を正しく理解しやすくするための構造化データです。",
-    favicon:
-      "ブラウザのタブに表示される小さなアイコンで、ブランド認識に役立ちます。",
-    コンテンツ量:
-      "ページに十分な文章があると、AIが正しく理解しやすく評価が上がります。",
-  };
-
-  // 🔍 テキスト内のキーワードを Tooltip 付き要素に変換する
-  const renderWithTooltip = (text: string) => {
-    let replaced = text;
-
-    Object.keys(glossary).forEach((keyword) => {
-      if (text.includes(keyword)) {
-        replaced = replaced.replace(
-          keyword,
-          `<span class="tooltip-key" data-key="${keyword}">${keyword}</span>`
-        );
-      }
-    });
-
-    return replaced;
-  };
+  const colorClass = colorClasses[color as keyof typeof colorClasses];
 
   return (
     <div className={`${colorClass} border rounded-lg p-6`}>
@@ -69,27 +92,14 @@ export default function ResultBlock({
 
       {Array.isArray(content) ? (
         <ul className="space-y-2">
-          {content.map((item, index) => (
-            <li
-              key={index}
-              className="text-base leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: renderWithTooltip(item),
-              }}
-            />
-          ))}
+          {content.map((item, i) => {
+            const replaced = applyTooltip(item);
+            return <li key={i}>{renderWithTooltips(replaced)}</li>;
+          })}
         </ul>
       ) : (
-        <p
-          className="text-base leading-relaxed whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{
-            __html: renderWithTooltip(content),
-          }}
-        />
+        <p>{renderWithTooltips(applyTooltip(content))}</p>
       )}
-
-      {/* Tooltip をまとめて表示する部分 */}
-      <Tooltip />
     </div>
   );
 }
