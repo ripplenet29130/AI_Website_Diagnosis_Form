@@ -148,4 +148,99 @@ export const handler: Handler = async (event) => {
 
     // ==========================================
     // 🟥 ⑤ JSON-LD（構造化データ）
-    /
+    // ==========================================
+    const hasJsonLD = html.includes("application/ld+json");
+
+    if (!hasJsonLD) {
+      score -= 20;
+
+      issues.push(
+        "構造化データ（JSON-LD）が設定されておらず、AI がページ内容を正しく理解できていません。その結果、AI検索や Google に取り上げられにくくなります。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・AI がサイト内容を引用してくれない\n" +
+          "・Google の強調表示（リッチリザルト）に出ない\n" +
+          "・専門性が AI に伝わらず順位が伸びない"
+      );
+
+      improve.push(
+        "構造化データを追加することで、AI にページ内容を正しく伝えられるようになります。AI検索でも紹介されやすくなり、検索結果の見栄えも向上します。"
+      );
+    } else {
+      done.push("構造化データ（JSON-LD）が利用されています");
+    }
+
+    // ==========================================
+    // 🟥 ⑥ favicon
+    // ==========================================
+    const hasFavicon =
+      html.includes('rel="icon"') ||
+      html.includes("rel='icon'") ||
+      html.includes('rel="shortcut icon"') ||
+      html.includes("rel='shortcut icon'") ||
+      html.toLowerCase().includes("favicon.ico");
+
+    if (!hasFavicon) {
+      score -= 5;
+
+      issues.push(
+        "サイトのアイコン（favicon）が設定されていません。検索結果やブラウザで無地表示となり、信頼性が弱く見えてしまいます。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・検索結果で目立たずクリック率が下がる\n" +
+          "・他社サイトと区別されにくい\n" +
+          "・『ちゃんとしていない』印象を持たれる可能性"
+      );
+
+      improve.push(
+        "favicon を設定することで、見た目の印象が大きく向上し、検索結果でも覚えてもらいやすくなります。ブランドの信頼性アップに効果的です。"
+      );
+    } else {
+      done.push("favicon が設定されています");
+    }
+
+    // ==========================================
+    // 🟥 ⑦ コンテンツ量不足
+    // ==========================================
+    if (html.length < 10000) {
+      score -= 15;
+
+      issues.push(
+        "サイト内の文章量が少なく、AI が内容を十分に理解できていません。そのため AI検索でも検索エンジンでも評価が伸びにくい状態です。\n\n" +
+          "🔧 放置するとどうなる？\n" +
+          "・AI に専門性が認識されず紹介されない\n" +
+          "・検索順位が伸びずアクセスが増えない\n" +
+          "・情報量が多い競合だけが評価され差がつく"
+      );
+
+      improve.push(
+        "ページ内の文章量を増やすことで、AI から『専門的で価値あるサイト』と判断されやすくなります。検索順位アップにもつながり、集客が安定します。"
+      );
+    } else {
+      done.push("コンテンツ量が十分で、AIに引用されやすい土台があります");
+    }
+
+    // ========== 結果返却 ==========
+    score = Math.max(0, Math.min(100, score));
+
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        success: true,
+        score,
+        done,
+        issues,
+        improve,
+      }),
+    };
+  } catch (e) {
+    console.error("Unexpected error:", e);
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        success: false,
+        error: "サーバー側でエラーが発生しました",
+      }),
+    };
+  }
+};
