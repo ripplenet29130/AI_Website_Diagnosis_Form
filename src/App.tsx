@@ -302,7 +302,7 @@ function App() {
                 rel="noopener noreferrer"
                 className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 rounded-lg font-semibold text-center"
               >
-                担当者と話す（オンライン面談を予約）
+                担当者と話す（無料オンライン面談を予約）
               </a>
             </div>
 
