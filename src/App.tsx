@@ -289,20 +289,23 @@ function App() {
                   専門スタッフが個別にご案内します。
                 </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              {/* お問い合わせ */}
-              <button
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+              <a
+                href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold text-center"
               >
                 お問い合わせする
-              </button>
+              </a>
             
-              {/* オンライン面談 */}
-              <button
-                className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 rounded-lg font-semibold"
+              <a
+                href="https://timerex.net/s/cev29130/87e0c2af/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 rounded-lg font-semibold text-center"
               >
                 担当者と話す（オンライン面談を予約）
-              </button>
+              </a>
             </div>
+
 
           </div>
 
