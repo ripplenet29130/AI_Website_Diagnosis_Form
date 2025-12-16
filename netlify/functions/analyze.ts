@@ -62,7 +62,7 @@ export const handler: Handler = async (event) => {
     } catch {}
 
     if (!llmsInstalled) {
-      score -= 30;
+      score -= 35;
       issues.push({
         title: "LLMs.txt が未設置です",
         summary:
@@ -94,7 +94,7 @@ export const handler: Handler = async (event) => {
     } catch {}
 
     if (!robotsInstalled) {
-      score -= 10;
+      score -= 15;
 
       issues.push({
         title: "robots.txt が未設定です",
@@ -127,7 +127,7 @@ export const handler: Handler = async (event) => {
     } catch {}
 
     if (!sitemapInstalled) {
-      score -= 10;
+      score -= 15;
 
       issues.push({
         title: "sitemap.xml が未設置です",
@@ -183,7 +183,7 @@ export const handler: Handler = async (event) => {
     const hasJsonLD = html.includes("application/ld+json");
 
     if (!hasJsonLD) {
-      score -= 20;
+      score -= 25;
 
       issues.push({
         title: "構造化データ（JSON-LD）が未設定です",
@@ -206,70 +206,6 @@ export const handler: Handler = async (event) => {
       done.push("構造化データ（JSON-LD）が利用されています");
     }
 
-    // ----------------------------------------------------
-    // ⑥ Favicon（どんな書き方でも拾える強力バージョン）
-    // ----------------------------------------------------
-    const lower = html.toLowerCase();
-    
-    // よくある favicon パターンを包括的にチェック
-    const hasFavicon =
-      // rel 属性に "icon" を含むもの全て（shortcut, mask, apple-touch-icon も捕捉）
-      /<link[^>]+rel=["'][^"']*icon[^"']*["']/i.test(html) ||
-    
-      // ファイル名に favicon.xx が含まれる（ico/png/svgでもOK）
-      /favicon\.(ico|png|svg|jpg|jpeg)/i.test(lower) ||
-    
-      // sizes 属性付きの形式
-      /<link[^>]+sizes=["'][^"']+["'][^>]*icon/i.test(html);
-    
-    
-    // 分岐
-    if (!hasFavicon) {
-      score -= 5;
-    
-      issues.push({
-        title: "favicon が未設定です",
-        summary:
-          "favicon は、検索結果やブラウザで表示されるサイトのアイコンです。視覚的な信頼性に大きく影響します。",
-        why: ["ユーザーやAIに覚えてもらいにくい"],
-        risks: ["検索結果で埋もれやすい", "ブランドとしての信頼感が損なわれる"],
-      });
-    
-      improve.push({
-        title: "faviconを設定して、検索結果での信頼性と認知度を高めましょう",
-        summary:
-          "favicon を設定すると、検索結果やブラウザ上での見た目が整い、サイトの信頼性が向上します。",
-      });
-    } else {
-      done.push("faviconが設定されています");
-    }
-
-
-    // ----------------------------------------------------
-    // ⑦ コンテンツ量
-    // ----------------------------------------------------
-    if (html.length < 10000) {
-      score -= 15;
-
-      issues.push({
-        title: "コンテンツ量が不足しています",
-        summary:
-          "AI は情報量の多いサイトを信頼しやすい傾向があります。文章量が少ないと、AIが内容を十分に理解できません。",
-        why: ["AI に専門性が伝わらず、引用されにくくなる"],
-        risks: [
-          "検索順位が伸びにくい",
-          "競合に内容面で負けやすくなる",
-        ],
-      });
-
-      improve.push({
-        title: "十分なコンテンツ量を確保して、AI に専門性を伝わりやすくしましょう",
-        summary:
-          "ページ内の文章量を増やすことで、AI に「専門的で価値のあるサイト」だと判断されやすくなります。AI からの引用・検索順位の向上につながり、アクセスアップに直結します。",
-      });
-    } else {
-      done.push("十分なコンテンツ量があります");
-    }
 
     // スコア丸め
     score = Math.max(0, Math.min(100, score));
