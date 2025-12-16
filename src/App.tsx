@@ -290,6 +290,18 @@ function App() {
             </button>
           </div>
 
+          {/* お問い合わせカード */}
+          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            💡 詳しい診断をご希望の方へ
+            </h3>    
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  本診断では把握しきれない改善優先度や具体的な施策について、
+                  専門スタッフが個別にご案内します。
+                </p>
+          </div>
+
+            
           </div>
         )}
       </div>
