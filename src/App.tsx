@@ -277,17 +277,6 @@ function App() {
                 </div>
               ))}
           
-            {/* 🔵 復活させた CTA ボタン */}
-            <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold mt-6"
-              onClick={() =>
-                alert(
-                  "お問い合わせフォームURLは準備中です。設定後にこちらから遷移するように変更できます。"
-                )
-              }
-            >
-              AI対策の具体的な改善案について相談する
-            </button>
           </div>
 
           {/* お問い合わせカード */}
