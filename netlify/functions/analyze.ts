@@ -78,7 +78,7 @@ export const handler: Handler = async (event) => {
       improve.push({
         title: "LLMs.txtを設置して、AIに正しい情報を伝えましょう",
         summary:
-          "LLMs.txt を設置することで、AI に “サイトのどの部分を参照してよいか” を正しく伝えられるようになります。AI検索で情報が拾われやすくなり、サイトの露出アップにつながります。",
+          "LLMs.txt を設置することで、AI検索で情報が拾われやすくなり、サイトの露出アップにつながります。",
       });
     } else {
       done.push("LLMs.txtが設置されています");
@@ -111,7 +111,7 @@ export const handler: Handler = async (event) => {
       improve.push({
         title: "robots.txt を設定して、AIに巡回ルールを伝えましょう",
         summary:
-          "robots.txt を設定すると、AI や検索エンジンに「見てよいページ／見てはいけないページ」を明確に伝えられます。重要なページをしっかり評価してもらいやすくなり、SEO の土台が整います。",
+          "robots.txt を設定すると、AIや検索エンジンに「見てよいページ／見てはいけないページ」を明確に伝えられます。重要なページをしっかり評価してもらいやすくなり、SEO の土台が整います。",
       });
     } else {
       done.push("robots.txtが設定されています");
@@ -200,7 +200,7 @@ export const handler: Handler = async (event) => {
       improve.push({
         title: "JSON-LDを追加して、AIにページ内容を正しく伝えましょう",
         summary:
-          "構造化データ（JSON-LD）を追加することで、AI にページの内容を正しく理解させることができます。その結果、AI検索やGoogleの強調表示で取り上げられやすくなります。",
+          "構造化データ（JSON-LD）を追加することで、AI検索やGoogleの強調表示で取り上げられやすくなります。",
       });
     } else {
       done.push("構造化データ（JSON-LD）が利用されています");
