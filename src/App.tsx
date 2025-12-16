@@ -158,7 +158,7 @@ function App() {
         </h2>
       
         <p className="text-sm text-gray-500 leading-relaxed tracking-wide">
-          URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要ポイントを自動チェックします。
+          URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要な技術ポイントを自動チェックします。
         </p>
           <input
             type="text"
