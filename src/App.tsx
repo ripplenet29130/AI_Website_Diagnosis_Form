@@ -150,7 +150,7 @@ function App() {
         {/* 入力フォーム */}
         <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
           <h2 className="text-[1.9rem] font-semibold tracking-tight text-gray-900 leading-snug">
-          AI時代のWEB対策できていますか？
+          AI時代のWEB対策(AIO)できていますか？
           <br />
           <span className="text-indigo-600 font-medium tracking-tight">
             あなたのサイトを10秒で診断。
