@@ -177,6 +177,12 @@ function App() {
           </button>
         </div>
 
+        <p className="text-xs text-gray-400 leading-relaxed">
+        ※本診断は AI対策の基本項目をチェックする簡易診断です。
+        より詳しい改善優先度・具体的施策まで知りたい方は、別途、詳細診断をご案内できます。
+        </p>
+
+
         {/* エラー */}
         {error && (
           <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg">
