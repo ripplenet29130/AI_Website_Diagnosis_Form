@@ -288,6 +288,12 @@ function App() {
                   本診断では把握しきれない改善優先度や具体的な施策について、
                   専門スタッフが個別にご案内します。
                 </p>
+
+            <p className="text-xs text-gray-500 leading-relaxed">
+              AI時代により大切になるE-E-A-T（専門性・信頼性）を意識したコンテンツ構成や、
+              FAQ（Q&A形式コンテンツ）の考え方については、
+              実際の面談にてサイトを拝見しながらご説明します。
+            </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
                 href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
