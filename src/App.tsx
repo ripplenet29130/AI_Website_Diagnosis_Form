@@ -299,6 +299,22 @@ function App() {
                   本診断では把握しきれない改善優先度や具体的な施策について、
                   専門スタッフが個別にご案内します。
                 </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* お問い合わせ */}
+              <button
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+              >
+                お問い合わせする
+              </button>
+            
+              {/* オンライン面談 */}
+              <button
+                className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 rounded-lg font-semibold"
+              >
+                担当者と話す（オンライン面談を予約）
+              </button>
+            </div>
+
           </div>
 
             
