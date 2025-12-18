@@ -140,11 +140,6 @@ function App() {
         {/* ========================================== */}
         <div className="bg-white p-6 md:p-10 rounded-xl shadow-md relative overflow-hidden">
           
-          {/* 追加要素：実績バッジ（左上） */}
-          <div className="absolute top-0 left-0 bg-yellow-500 text-white text-xs md:text-sm font-bold px-4 py-1 rounded-br-lg shadow-sm flex items-center gap-1 z-10">
-            <Crown className="w-4 h-4" />
-            累計10万サイト突破！
-          </div>
 
           <div className="space-y-6 pt-4">
             
