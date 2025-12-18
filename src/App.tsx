@@ -22,19 +22,6 @@ const tooltipDictionary: Record<string, string> = {
 };
 
 // ----------------------
-// 柔軟にマッチする正規表現
-// robots.txt / robots. txt / robots．txt に対応
-// ----------------------
-const tooltipPatterns: Record<string, RegExp> = {
-  "robots.txt": /robots[．.] ?txt/gi,
-  "sitemap.xml": /sitemap[．.] ?xml/gi,
-  HTTPS: /HTTPS/gi,
-  "JSON-LD": /JSON-?LD/gi,
-  favicon: /favicon/gi,
-  "LLMs.txt": /LLMs[．.] ?txt/gi,
-};
-
-// ----------------------
 // Tooltip変換関数
 // ----------------------
 function renderWithTooltips(text: string) {
@@ -56,10 +43,13 @@ function renderWithTooltips(text: string) {
 
       parts.forEach((part, index) => {
         if (part) newParts.push(part);
-
         if (index < matches.length) {
           newParts.push(
-            <Tooltip key={`${key}-${i}-${index}`} label={key} description={description} />
+            <Tooltip
+              key={`${key}-${i}-${index}`}
+              label={key}
+              description={description}
+            />
           );
         }
       });
@@ -86,7 +76,7 @@ interface AnalyzeResult {
   score: number;
   done: string[];
   issues: IssueItem[];
-  improve: string[];
+  improve: any[];
   error?: string;
 }
 
@@ -99,9 +89,6 @@ function App() {
   const NETLIFY_API =
     "https://ai-website-diagnosis-form.netlify.app/.netlify/functions";
 
-  // ----------------------
-  // 診断送信
-  // ----------------------
   const handleSubmit = async () => {
     if (!inputUrl) return;
 
@@ -130,10 +117,6 @@ function App() {
     }
   };
 
-  // ----------------------
-  // スコアのコメント
-  // ----------------------
-  
   const renderScoreComment = (score: number) => {
     if (score >= 90) return "非常に優秀です（AI検索への最適化が進んでいます）";
     if (score >= 75) return "良好です（さらに強化する余地があります）";
@@ -141,48 +124,55 @@ function App() {
     return "AI検索への対応が急務です";
   };
 
-  // ------------------------------------------------------
-  // JSX：UI
-  // ------------------------------------------------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
       <div className="max-w-3xl mx-auto space-y-8">
-        {/* 入力フォーム */}
-       <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
-        <h2 className="text-[1.85rem] font-bold tracking-wide text-slate-900 leading-snug">
-          AI時代のWEB対策(AIO)できていますか？
-          <br />
-          <span className="text-indigo-700 font-semibold tracking-wide">
-            あなたのサイトを10秒で診断。
-          </span>
-        </h2>
-      
-        <p className="text-base text-slate-600 leading-loose tracking-wide">
-          URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要な技術ポイントを自動チェックします。
-        </p>
-      
-        <input
-          type="text"
-          placeholder="https://example.com"
-          value={inputUrl}
-          onChange={(e) => setInputUrl(e.target.value)}
-          className="w-full border border-slate-200 rounded-lg p-3 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-        />
-      
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-indigo-700 hover:bg-indigo-800 text-white py-3 rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2"
-        >
-          {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
-          AI対策の簡易診断を行う
-        </button>
-      
-        <p className="text-xs text-slate-500 leading-loose tracking-wide">
-          本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。
-          より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
-        </p>
-      </div>
 
+        {/* 入力フォーム */}
+        <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+
+          {/* 見出し（← ここが一番変わる） */}
+          <h2 className="
+            font-heading
+            text-[1.9rem]
+            font-bold
+            tracking-wide
+            leading-snug
+            text-slate-900
+          ">
+            AI時代のWEB対策(AIO)できていますか？
+            <br />
+            <span className="font-heading text-indigo-700 font-semibold">
+              あなたのサイトを10秒で診断。
+            </span>
+          </h2>
+
+          <p className="text-base text-slate-600 leading-loose">
+            URLを入力するだけで、LLMs.txt・構造化データ・robots.txt など
+            AI対策の重要な技術ポイントを自動チェックします。
+          </p>
+
+          <input
+            type="text"
+            placeholder="https://example.com"
+            value={inputUrl}
+            onChange={(e) => setInputUrl(e.target.value)}
+            className="w-full border border-slate-200 rounded-lg p-3 text-base"
+          />
+
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-indigo-700 hover:bg-indigo-800 text-white py-3 rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2"
+          >
+            {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+            AI対策の簡易診断を行う
+          </button>
+
+          <p className="text-xs text-slate-500 leading-loose">
+            本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。
+            より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
+          </p>
+        </div>
 
         {/* エラー */}
         {error && (
@@ -193,130 +183,28 @@ function App() {
 
         {/* ローディング */}
         {isLoading && (
-              <div className="flex flex-col items-center py-10">
-                <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-                <p className="text-gray-600 font-medium">
-                  AI対策状況を分析中です...
-                </p>
-              </div>
+          <div className="flex flex-col items-center py-10">
+            <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+            <p className="text-gray-600 font-medium">
+              AI対策状況を分析中です...
+            </p>
+          </div>
         )}
 
         {/* 結果表示 */}
         {result && !isLoading && (
           <div className="space-y-6">
 
-            {/* スコア */}
             <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-blue-500">
-              <h3 className="text-xl font-bold mb-2">📊 AI対策スコア</h3>
+              <h3 className="font-heading text-xl font-bold mb-2">
+                📊 AI対策スコア
+              </h3>
               <p className="text-3xl font-black">{result.score} / 100</p>
-              <p className="text-gray-600">{renderScoreComment(result.score)}</p>
+              <p className="text-gray-600">
+                {renderScoreComment(result.score)}
+              </p>
             </div>
 
-            {/* -------------------- */}
-            {/* できている点 */}
-            {/* -------------------- */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-green-500">
-              <h3 className="text-lg font-bold mb-2">🟩 AI対策としてできている点</h3>
-              <ul className="list-disc ml-6 space-y-1 text-gray-800">
-                {result.done.map((text, i) => (
-                  <li key={i}>{renderWithTooltips(text)}</li>
-                ))}
-              </ul>
-            </div>
-
-            {/* -------------------- */}
-            {/* 課題（構造化データ） */}
-            {/* -------------------- */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-red-500">
-              <h3 className="text-lg font-bold mb-2">🟥 AI対策としての課題</h3>
-
-              {result.issues.map((issue, i) => (
-                <div key={i} className="mb-6 space-y-2">
-
-                  {/* タイトル */}
-                  <p className="font-bold text-gray-900">
-                    <span className="text-red-600">✕</span>{" "}
-                    {renderWithTooltips(issue.title)}
-                  </p>
-
-
-                  {/* サマリー */}
-                  <p>{renderWithTooltips(issue.summary)}</p>
-
-                  {/* なぜ問題？ */}
-                  <p className="mt-2 font-semibold">▼ なぜ問題？</p>
-                  <ul className="list-disc ml-6">
-                    {issue.why.map((w, j) => (
-                      <li key={j}>{renderWithTooltips(w)}</li>
-                    ))}
-                  </ul>
-
-                  {/* 放置すると？ */}
-                  <p className="mt-2 font-semibold">▼ 放置すると？</p>
-                  <ul className="list-disc ml-6">
-                    {issue.risks.map((r, j) => (
-                      <li key={j}>{renderWithTooltips(r)}</li>
-                    ))}
-                  </ul>
-
-                </div>
-              ))}
-            </div>
-
-            {/* ========================= */}
-            {/* 改善提案（improve） */}
-            {/* ========================= */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
-              <h3 className="text-lg font-bold mb-2">💡 改善提案</h3>
-
-              {result.improve.map((item, i) => (
-                <div key={i} className="mb-6">
-                <p className="font-bold text-gray-900">◎ {item.title}</p>
-                <p className="text-gray-800 leading-relaxed mt-1">
-                  {item.summary}
-                </p>
-                </div>
-              ))}
-          
-          </div>
-
-          {/* お問い合わせカード */}
-          <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            💡 詳しい診断をご希望の方へ
-            </h3>    
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  本診断では把握しきれない改善優先度や具体的な施策について、
-                  専門スタッフが個別にご案内します。
-                </p>
-
-                <p className="text-xs text-gray-500 leading-relaxed">
-                面談では、AIで検索されやすくなるためのE-E-A-T(権威性・信頼性)を踏まえたコンテンツ設計や
-                FAQコンテンツの整理・活用方法などについて、
-                サイトの状況に合わせてご説明します。
-                </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold text-center"
-              >
-                お問い合わせする
-              </a>
-            
-              <a
-                href="https://timerex.net/s/cev29130/87e0c2af/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 py-3 rounded-lg font-semibold text-center"
-              >
-                担当者と話す（無料オンライン面談を予約）
-              </a>
-            </div>
-
-
-          </div>
-
-            
           </div>
         )}
       </div>
