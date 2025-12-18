@@ -2,11 +2,11 @@ import { useState } from "react";
 // 必要なアイコンをすべてインポート
 import { 
   Loader2, 
-  Crown, 
+  // Crown, // 削除
   Check, 
   ShieldCheck, 
-  Sparkles, 
-  ChevronRight 
+  ChevronRight,
+  Sparkles 
 } from "lucide-react";
 import Tooltip from "./components/Tooltip";
 
@@ -137,20 +137,16 @@ function App() {
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* ========================================== */}
-        {/* 1. メイン診断フォームエリア（リッチデザイン）     */}
+        {/* 1. メイン診断フォームエリア（リッチデザイン）      */}
         {/* ========================================== */}
         <div className="bg-white rounded-xl shadow-xl border border-gray-100 relative overflow-visible p-6 md:p-10">
           
-          {/* 左上の王冠バッジ */}
-          <div className="absolute -top-3 left-4 md:-top-4 md:left-10 bg-gradient-to-b from-[#eebf5e] to-[#d49e30] text-white font-bold px-4 py-2 rounded shadow-md border-b-2 border-[#b07e1a] z-10 flex items-center gap-2">
-            <Crown className="w-5 h-5 fill-white" />
-            <span className="drop-shadow-sm text-sm md:text-base">累計10万サイト突破！</span>
-          </div>
+          {/* バッジ削除済み */}
 
-          <div className="mt-8 md:mt-6">
+          <div className="mt-2 md:mt-4 text-center">
             
             {/* 見出しエリア */}
-            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-[#5a2a2a] mb-6">
+            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-[#5a2a2a] mb-8">
               AI時代のWEB対策(AIO)できていますか？
               <br />
               あなたのサイトを
@@ -161,8 +157,9 @@ function App() {
               で診断
             </h2>
 
-            {/* メリット（チェックリスト）※ここを修正しました */}
-            <div className="space-y-4 mb-8">
+            {/* メリット（チェックリスト） */}
+            {/* 中央揃えで見やすいように max-w を設定して mx-auto で配置 */}
+            <div className="space-y-4 mb-10 max-w-2xl mx-auto text-left">
               
               {/* 1行目 */}
               <div className="flex items-start gap-3">
@@ -186,64 +183,50 @@ function App() {
 
             </div>
 
-            {/* アクションエリア */}
-            <div className="flex flex-col md:flex-row gap-8 items-end">
+            {/* アクションエリア（フォームのみ・中央配置） */}
+            <div className="w-full max-w-2xl mx-auto relative border-2 border-dashed border-[#8b7968] rounded-2xl p-6 md:p-8 bg-[#fdfdfd]">
               
-              {/* 左側：入力フォーム（破線枠） */}
-              <div className="flex-1 w-full relative border-2 border-dashed border-[#8b7968] rounded-2xl p-6 bg-[#fdfdfd]">
-                
-                {/* 吹き出し */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white border border-[#5a4a4a] text-[#333] px-6 py-1 rounded-full text-sm font-bold shadow-sm whitespace-nowrap z-10">
-                  \ たった<span className="text-[#c72626]">10秒</span>！URLを入れるだけ /
-                  <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-[#5a4a4a] rotate-45"></div>
-                </div>
-
-                <div className="mt-2 space-y-4">
-                  <input
-                    type="text"
-                    placeholder="https://example.com"
-                    value={inputUrl}
-                    onChange={(e) => setInputUrl(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md p-3 text-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all"
-                  />
-
-                  {/* リッチなボタン */}
-                  <button
-                    onClick={handleSubmit}
-                    className="w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all active:translate-y-1"
-                  >
-                    <div className="bg-gradient-to-b from-[#ff9a3d] to-[#e85a0c] text-white text-xl md:text-2xl font-bold py-4 px-6 border border-[#ffb06e] border-b-[#c24200] border-b-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center justify-center gap-2">
-                       {isLoading ? <Loader2 className="animate-spin" /> : <ChevronRight className="fill-white" />}
-                       <span className="drop-shadow-md">今すぐ無料で診断する</span>
-                    </div>
-                    {/* キラッと光る演出 */}
-                    <div className="absolute top-0 -left-full w-1/2 h-full bg-white/20 skew-x-[-20deg] group-hover:animate-[shimmer_1s_infinite]"></div>
-                  </button>
-                  
-                  {/* 安心感の補足 */}
-                  <div className="flex justify-center gap-4 text-xs text-[#8b7968]">
-                    <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 無料</span>
-                    <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 即時解析</span>
-                    <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 安全な通信</span>
-                  </div>
-                </div>
+              {/* 吹き出し */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white border border-[#5a4a4a] text-[#333] px-6 py-1 rounded-full text-sm font-bold shadow-sm whitespace-nowrap z-10">
+                \ たった<span className="text-[#c72626]">10秒</span>！URLを入れるだけ /
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-[#5a4a4a] rotate-45"></div>
               </div>
 
-              {/* 右側：キャラクター画像 */}
-              <div className="w-32 md:w-48 shrink-0 mx-auto md:mx-0 flex items-center justify-center">
-                 {/* 画像がない場合のプレースホルダー（実際の画像がある場合はimgタグに差し替えてください） */}
-                 {/* <img src="/navi.png" alt="ナビゲーター" className="w-full h-auto drop-shadow-xl" /> */}
-                 <div className="w-full h-40 bg-gray-100 rounded-xl border-2 border-dashed border-[#8b7968] flex flex-col items-center justify-center text-[#8b7968]">
-                    <span className="text-4xl mb-1">👩‍💼</span>
-                    <span className="text-xs font-bold">画像エリア</span>
-                 </div>
+              <div className="mt-4 space-y-5">
+                <input
+                  type="text"
+                  placeholder="https://example.com"
+                  value={inputUrl}
+                  onChange={(e) => setInputUrl(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-4 text-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all"
+                />
+
+                {/* リッチなボタン */}
+                <button
+                  onClick={handleSubmit}
+                  className="w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all active:translate-y-1"
+                >
+                  <div className="bg-gradient-to-b from-[#ff9a3d] to-[#e85a0c] text-white text-xl md:text-2xl font-bold py-4 px-6 border border-[#ffb06e] border-b-[#c24200] border-b-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center justify-center gap-2">
+                      {isLoading ? <Loader2 className="animate-spin" /> : <ChevronRight className="fill-white" />}
+                      <span className="drop-shadow-md">今すぐ無料で診断する</span>
+                  </div>
+                  {/* キラッと光る演出 */}
+                  <div className="absolute top-0 -left-full w-1/2 h-full bg-white/20 skew-x-[-20deg] group-hover:animate-[shimmer_1s_infinite]"></div>
+                </button>
+                
+                {/* 安心感の補足 */}
+                <div className="flex justify-center gap-4 text-xs text-[#8b7968]">
+                  <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 無料</span>
+                  <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 即時解析</span>
+                  <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> 安全な通信</span>
+                </div>
               </div>
             </div>
 
             {/* フッターテキスト */}
-            <div className="mt-6 text-xs md:text-sm text-gray-500 space-y-1">
+            <div className="mt-8 text-xs md:text-sm text-gray-500 space-y-1">
               <p>本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。</p>
-              <p className="flex items-center gap-1">
+              <p className="flex items-center justify-center gap-1">
                 <span className="text-[#7CB342]">🔰</span>
                 より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
               </p>
