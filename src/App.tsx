@@ -148,40 +148,41 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* 入力フォーム */}
-        <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
-          <h2 className="text-[1.9rem] font-semibold tracking-tight text-gray-900 leading-snug">
+       <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+        <h2 className="text-[1.85rem] font-bold tracking-wide text-slate-900 leading-snug">
           AI時代のWEB対策(AIO)できていますか？
           <br />
-          <span className="text-indigo-600 font-medium tracking-tight">
+          <span className="text-indigo-700 font-semibold tracking-wide">
             あなたのサイトを10秒で診断。
           </span>
         </h2>
       
-        <p className="text-sm text-gray-500 leading-relaxed tracking-wide">
+        <p className="text-base text-slate-600 leading-loose tracking-wide">
           URLを入力するだけで、LLMs.txt・構造化データ・robots.txt などAI対策の重要な技術ポイントを自動チェックします。
         </p>
-          <input
-            type="text"
-            placeholder="https://example.com"
-            value={inputUrl}
-            onChange={(e) => setInputUrl(e.target.value)}
-            className="w-full border rounded-lg p-3"
-          />
+      
+        <input
+          type="text"
+          placeholder="https://example.com"
+          value={inputUrl}
+          onChange={(e) => setInputUrl(e.target.value)}
+          className="w-full border border-slate-200 rounded-lg p-3 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        />
+      
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-indigo-700 hover:bg-indigo-800 text-white py-3 rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2"
+        >
+          {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+          AI対策の簡易診断を行う
+        </button>
+      
+        <p className="text-xs text-slate-500 leading-loose tracking-wide">
+          本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。
+          より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
+        </p>
+      </div>
 
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2"
-          >
-            {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
-            AI対策診断を開始する
-          </button>
-
-          <p className="text-xs text-gray-400 leading-relaxed">
-          ※本診断は AI対策の基本項目をチェックする簡易診断です。
-          より詳しい改善優先度・具体的施策まで知りたい方は、別途、詳細診断をご案内できます。
-          </p>
-
-        </div>
 
         {/* エラー */}
         {error && (
