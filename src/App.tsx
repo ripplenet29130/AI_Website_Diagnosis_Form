@@ -132,20 +132,17 @@ function App() {
         <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
 
           {/* 見出し（← ここが一番変わる） */}
-          <h2 className="
-            font-heading
-            text-[1.9rem]
-            font-bold
-            tracking-wide
-            leading-snug
-            text-slate-900
-          ">
-            AI時代のWEB対策(AIO)できていますか？
-            <br />
-            <span className="font-heading text-indigo-700 font-semibold">
-              あなたのサイトを10秒で診断。
-            </span>
-          </h2>
+<h2
+  style={{ fontFamily: '"Zen Kaku Gothic New", sans-serif' }}
+  className="text-[1.9rem] font-bold text-slate-900"
+>
+  AI時代のWEB対策(AIO)できていますか？
+  <br />
+  <span className="text-indigo-700">
+    あなたのサイトを10秒で診断。
+  </span>
+</h2>
+
 
           <p className="text-base text-slate-600 leading-loose">
             URLを入力するだけで、LLMs.txt・構造化データ・robots.txt など
