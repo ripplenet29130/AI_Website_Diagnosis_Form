@@ -1,9 +1,7 @@
-// src/App.tsx
 import { useState } from "react";
-// アイコンを追加でインポート
 import { 
   Loader2, 
-  Crown, 
+  // Crown, // 削除
   Check, 
   ShieldCheck, 
   Sparkles 
@@ -12,6 +10,7 @@ import Tooltip from "./components/Tooltip";
 
 // ----------------------
 // Tooltip 対象キーワード辞書
+// (変更なし)
 // ----------------------
 const tooltipDictionary: Record<string, string> = {
   "robots.txt":
@@ -30,6 +29,7 @@ const tooltipDictionary: Record<string, string> = {
 
 // ----------------------
 // Tooltip変換関数
+// (変更なし)
 // ----------------------
 function renderWithTooltips(text: string) {
   let content: (string | JSX.Element)[] = [text];
@@ -54,7 +54,7 @@ function renderWithTooltips(text: string) {
           newParts.push(
             <Tooltip
               key={`${key}-${i}-${index}`}
-              label={matches[index]} // マッチしたテキストをそのまま使う
+              label={matches[index]}
               description={description}
             />
           );
@@ -70,6 +70,7 @@ function renderWithTooltips(text: string) {
 
 // ----------------------
 // APIレスポンス型
+// (変更なし)
 // ----------------------
 interface IssueItem {
   title: string;
@@ -83,7 +84,7 @@ interface AnalyzeResult {
   score: number;
   done: string[];
   issues: IssueItem[];
-  improve: any[]; // improveがオブジェクト配列の場合に対応
+  improve: any[];
   error?: string;
 }
 
@@ -132,119 +133,116 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 font-sans">
+    // フォント指定を追加（※補足参照）
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 font-['Noto_Sans_JP',_sans-serif]">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* ========================================== */}
-        {/* メイン入力エリア（デザインそのまま・構成強化）  */}
+        {/* メイン入力エリア（中央揃え・デザイン調整）   */}
         {/* ========================================== */}
-        <div className="bg-white p-6 md:p-10 rounded-xl shadow-md relative overflow-hidden">
+        <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg relative overflow-hidden flex flex-col items-center text-center">
           
+          {/* 累計10万サイト突破バッジは削除しました */}
 
-          <div className="space-y-6 pt-4">
+          <div className="space-y-8 w-full max-w-2xl">
             
-            {/* タイトルセクション */}
-            <div className="text-center md:text-left">
-              <h2 className="text-[1.85rem] font-bold tracking-wide text-slate-900 leading-snug">
-                AI時代のWEB対策(AIO)できていますか？
-                <br />
-                <span className="text-indigo-700 font-semibold tracking-wide bg-indigo-50 px-1 rounded">
-                  あなたのサイトを10秒で診断。
-                </span>
+            {/* タイトルセクション（デザイン調整） */}
+            <div className="space-y-4">
+              <h2 className="text-[1.75rem] md:text-[2rem] font-black tracking-wider text-slate-900 leading-tight">
+                AI時代のWEB対策(AIO)
+                <br className="md:hidden"/>
+                できていますか？
               </h2>
+              <p className="text-xl md:text-2xl font-bold text-indigo-700 tracking-wide">
+                <span className="bg-indigo-50 px-4 py-1 rounded-full inline-block shadow-sm border border-indigo-100">
+                あなたのサイトを10秒で診断。
+                </span>
+              </p>
             </div>
 
-            {/* 2カラムレイアウト（PC時）：左にフォームとメリット、右にキャラ */}
-            <div className="flex flex-col md:flex-row gap-8">
-              
-              {/* 左カラム：メインコンテンツ */}
-              <div className="flex-1 space-y-6">
-                
-                {/* メリットリスト（安心感の追加） */}
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-slate-600 text-sm md:text-base leading-relaxed">
-                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                    <span>
-                      URLを入力するだけで、<b className="text-slate-800">LLMs.txt</b>・<b className="text-slate-800">構造化データ</b>などの重要ポイントを自動チェック。
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2 text-slate-600 text-sm md:text-base leading-relaxed">
-                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                    <span>
-                      <span className="text-red-500 font-bold">改善すべき課題</span>とリスクがすぐに分かります。
-                    </span>
-                  </li>
-                </ul>
-
-                {/* フォームエリア */}
-                <div className="space-y-4 pt-2 relative">
-                  
-                  {/* 吹き出し（マイクロコピー） */}
-                  <div className="absolute -top-3 right-0 md:right-auto md:left-1/2 bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200 transform md:-translate-x-1/2">
-                    \ 面倒な登録は一切不要！ /
-                  </div>
-
-                  <input
-                    type="text"
-                    placeholder="https://example.com"
-                    value={inputUrl}
-                    onChange={(e) => setInputUrl(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg p-3 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-shadow"
-                  />
-
-                  <button
-                    onClick={handleSubmit}
-                    className="group w-full bg-indigo-700 hover:bg-indigo-800 text-white py-4 rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 transition-all active:translate-y-0.5"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-5 h-5 text-yellow-300" />
-                    )}
-                    <span className="text-lg">AI対策の簡易診断を行う</span>
-                  </button>
-
-                  {/* 安心感の補足 */}
-                  <div className="flex justify-center gap-4 text-xs text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3" /> 無料
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3" /> 即時解析
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3" /> 安全な通信
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* 右カラム：キャラクター（PCのみ表示） */}
-              <div className="hidden md:flex md:w-1/3 items-center justify-center">
-                 {/* ここにキャラクター画像を配置してください。
-                    画像がない場合はこのプレースホルダーが表示されます。
-                 */}
-                 <div className="w-full h-full min-h-[200px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
-                    <span className="text-4xl mb-2">👩‍💻</span>
-                    <span className="text-xs font-bold">ナビゲーター画像</span>
+            {/* キャラクター画像（中央配置・タイトルの下へ移動） */}
+            <div className="flex items-center justify-center py-2">
+                 {/* 画像プレースホルダー */}
+                 <div className="w-32 h-32 md:w-40 md:h-40 bg-slate-50 rounded-full border-4 border-white shadow-md flex flex-col items-center justify-center text-slate-400 overflow-hidden relative">
+                    <span className="text-5xl absolute bottom-0 translate-y-1/4">👩‍💻</span>
                  </div>
+            </div>
+
+            {/* メリットリスト（中央揃えの中で左寄せ） */}
+            <div className="inline-block text-left bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3 text-slate-700 text-sm md:text-base leading-relaxed font-medium">
+                  <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                  <span>
+                    URLを入れるだけで、<b className="text-slate-900">LLMs.txt</b>・<b className="text-slate-900">構造化データ</b>などの重要ポイントを自動チェック。
+                  </span>
+                </li>
+                <li className="flex items-start gap-3 text-slate-700 text-sm md:text-base leading-relaxed font-medium">
+                  <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                  <span>
+                    <span className="text-red-600 font-bold bg-red-50 px-1">改善すべき課題</span>とリスクがすぐに分かります。
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* フォームエリア（幅を制限して中央配置） */}
+            <div className="w-full max-w-lg mx-auto space-y-5 pt-4 relative">
+              
+              {/* 吹き出し（中央配置） */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md whitespace-nowrap z-10">
+                \ 面倒な登録は一切不要！ /
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-indigo-600 rotate-45"></div>
+              </div>
+
+              <input
+                type="text"
+                placeholder="https://example.com"
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                className="w-full border-2 border-slate-200 rounded-lg p-4 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all text-center"
+              />
+
+              <button
+                onClick={handleSubmit}
+                className="group w-full bg-gradient-to-b from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white py-4 rounded-lg font-bold tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/50 border-b-4 border-indigo-900 active:border-b-0 active:translate-y-1 transition-all"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
+                )}
+                <span className="text-lg">AI対策の簡易診断を行う</span>
+              </button>
+
+              {/* 安心感の補足（中央配置） */}
+              <div className="flex justify-center gap-5 text-xs text-slate-500 font-medium">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-indigo-400" /> 完全無料
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-indigo-400" /> 即時解析
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-indigo-400" /> 安全なSSL通信
+                </span>
               </div>
             </div>
 
+          </div>
+          
             {/* フッターテキスト */}
-            <p className="text-xs text-slate-500 leading-loose tracking-wide border-t border-slate-100 pt-4 mt-4">
+            <p className="text-xs text-slate-500 leading-loose tracking-wider mt-8 pt-6 border-t border-slate-100 w-full max-w-2xl">
               本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。
               より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
             </p>
-          </div>
+
         </div>
 
-
         {/* ========================================== */}
-        {/* 以下、診断結果エリア（ロジックは既存のまま）  */}
+        {/* 以下、診断結果エリア（変更なし）              */}
         {/* ========================================== */}
-
+        {/* (ここから下のコードは元のままです) */}
         {/* エラー */}
         {error && (
           <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg flex items-center gap-2">
