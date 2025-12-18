@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useState } from "react";
 // 必要なアイコンをすべてインポート
 import { 
@@ -145,8 +146,8 @@ function App() {
 
           <div className="mt-2 md:mt-4 text-center">
             
-            {/* 見出しエリア */}
-            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-[#5a2a2a] mb-8">
+            {/* 見出しエリア：font-serif を追加して明朝体に */}
+            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-[#5a2a2a] mb-8 font-serif">
               AI時代のWEB対策(AIO)できていますか？
               <br />
               あなたのサイトを
