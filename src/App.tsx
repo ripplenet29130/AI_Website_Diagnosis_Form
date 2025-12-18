@@ -1,9 +1,10 @@
+// src/App.tsx
 import { useState } from "react";
+// アイコンを追加でインポート
 import { 
   Loader2, 
   Crown, 
   Check, 
-  ChevronRight, 
   ShieldCheck, 
   Sparkles 
 } from "lucide-react";
@@ -34,7 +35,6 @@ function renderWithTooltips(text: string) {
   let content: (string | JSX.Element)[] = [text];
 
   Object.keys(tooltipDictionary).forEach((key) => {
-    // 特殊文字のエスケープ
     const regex = new RegExp(key.replace(".", "\\."), "gi");
     const description = tooltipDictionary[key];
 
@@ -54,7 +54,7 @@ function renderWithTooltips(text: string) {
           newParts.push(
             <Tooltip
               key={`${key}-${i}-${index}`}
-              label={matches[index]} // マッチした実際のテキストを使用（大文字小文字維持のため）
+              label={matches[index]} // マッチしたテキストをそのまま使う
               description={description}
             />
           );
@@ -83,7 +83,7 @@ interface AnalyzeResult {
   score: number;
   done: string[];
   issues: IssueItem[];
-  improve: any[];
+  improve: any[]; // improveがオブジェクト配列の場合に対応
   error?: string;
 }
 
@@ -132,183 +132,256 @@ function App() {
   };
 
   return (
-    // 背景：真っ白ではなく、温かみのあるオレンジベージュ系の背景色に
-    <div className="min-h-screen bg-[#FFF9F5] py-12 px-4 font-sans text-slate-800">
-      
-      {/* メインコンテナ：紙のようなカードデザイン */}
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-orange-100 relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 font-sans">
+      <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* 左上の「実績バッジ」 */}
-        <div className="absolute top-0 left-0 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-bold px-6 py-2 rounded-br-2xl shadow-md z-10 flex items-center gap-2">
-          <Crown className="w-5 h-5 fill-white" />
-          累計10万サイト突破！
-        </div>
-
-        <div className="p-6 md:p-10 pt-16">
+        {/* ========================================== */}
+        {/* メイン入力エリア（デザインそのまま・構成強化）  */}
+        {/* ========================================== */}
+        <div className="bg-white p-6 md:p-10 rounded-xl shadow-md relative overflow-hidden">
           
-          {/* ヘッダーセクション */}
-          <div className="text-center mb-8 space-y-4">
-            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight">
-              <span className="text-[#bf0000]">AI時代のWEB対策(AIO)</span>できていますか？
-              <br className="hidden md:block" />
-              <span className="inline-block mt-2">
-                あなたのサイトを
-                <span className="bg-gradient-to-t from-yellow-200 to-transparent bg-[length:100%_40%] bg-bottom px-1">
-                  10秒で診断
-                </span>
-              </span>
-            </h2>
+          {/* 追加要素：実績バッジ（左上） */}
+          <div className="absolute top-0 left-0 bg-yellow-500 text-white text-xs md:text-sm font-bold px-4 py-1 rounded-br-lg shadow-sm flex items-center gap-1 z-10">
+            <Crown className="w-4 h-4" />
+            累計10万サイト突破！
           </div>
 
-          {/* コンテンツエリア：左右分割（PC時） */}
-          <div className="grid md:grid-cols-5 gap-8 items-end">
+          <div className="space-y-6 pt-4">
             
-            {/* 左側：メリットリストとフォーム (3/5) */}
-            <div className="md:col-span-3 space-y-6">
+            {/* タイトルセクション */}
+            <div className="text-center md:text-left">
+              <h2 className="text-[1.85rem] font-bold tracking-wide text-slate-900 leading-snug">
+                AI時代のWEB対策(AIO)できていますか？
+                <br />
+                <span className="text-indigo-700 font-semibold tracking-wide bg-indigo-50 px-1 rounded">
+                  あなたのサイトを10秒で診断。
+                </span>
+              </h2>
+            </div>
+
+            {/* 2カラムレイアウト（PC時）：左にフォームとメリット、右にキャラ */}
+            <div className="flex flex-col md:flex-row gap-8">
               
-              {/* メリット箇条書き */}
-              <ul className="space-y-3 bg-orange-50 p-4 rounded-xl border border-orange-100">
-                <li className="flex items-start gap-3">
-                  <Check className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-                  <p className="text-sm md:text-base font-medium">
-                    URLを入力するだけで、
-                    {renderWithTooltips("LLMs.txt")}・{renderWithTooltips("構造化データ")}・{renderWithTooltips("robots.txt")}など
-                    <span className="text-red-600 font-bold mx-1">AI対策の重要な技術ポイント</span>
-                    をチェック。
-                  </p>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-                  <p className="text-sm md:text-base font-medium">
-                    <span className="text-red-600 font-bold">重要な施策点</span>
-                    を自動で洗い出し、改善案を提示します。
-                  </p>
-                </li>
-              </ul>
+              {/* 左カラム：メインコンテンツ */}
+              <div className="flex-1 space-y-6">
+                
+                {/* メリットリスト（安心感の追加） */}
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-slate-600 text-sm md:text-base leading-relaxed">
+                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>
+                      URLを入力するだけで、<b className="text-slate-800">LLMs.txt</b>・<b className="text-slate-800">構造化データ</b>などの重要ポイントを自動チェック。
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2 text-slate-600 text-sm md:text-base leading-relaxed">
+                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>
+                      <span className="text-red-500 font-bold">改善すべき課題</span>とリスクがすぐに分かります。
+                    </span>
+                  </li>
+                </ul>
 
-              {/* 入力フォームエリア */}
-              <div className="relative pt-6">
-                {/* 吹き出し */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0 bg-white border-2 border-orange-400 text-orange-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm whitespace-nowrap animate-bounce-slow">
-                  \ たった10秒！URLを入れるだけ /
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b-2 border-r-2 border-orange-400 rotate-45"></div>
-                </div>
+                {/* フォームエリア */}
+                <div className="space-y-4 pt-2 relative">
+                  
+                  {/* 吹き出し（マイクロコピー） */}
+                  <div className="absolute -top-3 right-0 md:right-auto md:left-1/2 bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200 transform md:-translate-x-1/2">
+                    \ 面倒な登録は一切不要！ /
+                  </div>
 
-                <div className="space-y-3">
                   <input
                     type="text"
                     placeholder="https://example.com"
                     value={inputUrl}
                     onChange={(e) => setInputUrl(e.target.value)}
-                    className="w-full border-2 border-slate-200 rounded-lg p-4 text-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all outline-none"
+                    className="w-full border border-slate-200 rounded-lg p-3 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-shadow"
                   />
 
-                  {/* 強化されたボタン */}
                   <button
                     onClick={handleSubmit}
-                    className="group w-full bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 text-white text-xl py-4 rounded-xl font-bold tracking-wide shadow-lg shadow-orange-200 border-b-4 border-orange-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 relative overflow-hidden"
+                    className="group w-full bg-indigo-700 hover:bg-indigo-800 text-white py-4 rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 transition-all active:translate-y-0.5"
                   >
-                    {/* キラッとするエフェクト（装飾） */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                    
                     {isLoading ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <>
-                        <Sparkles className="w-5 h-5 text-yellow-200" />
-                        <span>今すぐ無料で診断する</span>
-                        <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                      </>
+                      <Sparkles className="w-5 h-5 text-yellow-300" />
                     )}
+                    <span className="text-lg">AI対策の簡易診断を行う</span>
                   </button>
-                  
-                  {/* マイクロコピー */}
-                  <div className="flex justify-center items-center gap-4 text-xs text-slate-500">
+
+                  {/* 安心感の補足 */}
+                  <div className="flex justify-center gap-4 text-xs text-slate-400">
                     <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-4 h-4 text-green-500" />
-                      会員登録不要
+                      <ShieldCheck className="w-3 h-3" /> 無料
                     </span>
                     <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-4 h-4 text-green-500" />
-                      安心のSSL通信
+                      <ShieldCheck className="w-3 h-3" /> 即時解析
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3" /> 安全な通信
                     </span>
                   </div>
                 </div>
+
+              </div>
+
+              {/* 右カラム：キャラクター（PCのみ表示） */}
+              <div className="hidden md:flex md:w-1/3 items-center justify-center">
+                 {/* ここにキャラクター画像を配置してください。
+                    画像がない場合はこのプレースホルダーが表示されます。
+                 */}
+                 <div className="w-full h-full min-h-[200px] bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400">
+                    <span className="text-4xl mb-2">👩‍💻</span>
+                    <span className="text-xs font-bold">ナビゲーター画像</span>
+                 </div>
               </div>
             </div>
 
-            {/* 右側：キャラクターイラスト (2/5) */}
-            <div className="hidden md:block md:col-span-2 relative">
-               {/* ここにナビゲーターの画像を入れてください。
-                 とりあえずプレースホルダーを表示しています。
-               */}
-               <div className="bg-gray-100 rounded-xl h-64 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-300">
-                  <div className="text-4xl mb-2">👩‍💼</div>
-                  <span className="text-sm">ここに人物画像を配置</span>
-                  <span className="text-xs text-slate-400 mt-1">（透過PNG推奨）</span>
-               </div>
-               
-               {/* 画像がある場合の例: 
-               <img 
-                 src="/images/navi_woman.png" 
-                 alt="診断ナビゲーター" 
-                 className="w-full h-auto object-contain drop-shadow-xl"
-               />
-               */}
-            </div>
-          </div>
-
-          {/* フッターテキスト */}
-          <div className="mt-8 pt-6 border-t border-slate-100 text-sm text-slate-500 leading-relaxed">
-            <p>
-              <span className="text-yellow-500 mr-1">🔰</span>
+            {/* フッターテキスト */}
+            <p className="text-xs text-slate-500 leading-loose tracking-wide border-t border-slate-100 pt-4 mt-4">
               本診断では、AI対策における基本的なチェック項目を分かりやすく確認できます。
               より詳しい改善優先度・具体的施策まで知りたい方は、詳細診断をご案内できます。
             </p>
           </div>
         </div>
 
-        {/* -------------------- */}
-        {/* 以下、診断結果エリア */}
-        {/* -------------------- */}
-        
-        {/* エラー表示 */}
+
+        {/* ========================================== */}
+        {/* 以下、診断結果エリア（ロジックは既存のまま）  */}
+        {/* ========================================== */}
+
+        {/* エラー */}
         {error && (
-          <div className="m-6 bg-red-50 border-2 border-red-200 text-red-800 p-4 rounded-xl flex items-center gap-3">
-            <div className="text-2xl">⚠️</div>
-            {error}
+          <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-lg flex items-center gap-2">
+            <span>⚠️</span> {error}
           </div>
         )}
 
-        {/* ローディング表示 */}
+        {/* ローディング */}
         {isLoading && (
-          <div className="p-10 flex flex-col items-center bg-white/90 absolute inset-0 z-50 justify-center">
-            <Loader2 className="w-16 h-16 text-orange-500 animate-spin mb-4" />
-            <p className="text-slate-600 font-bold text-lg animate-pulse">
+          <div className="flex flex-col items-center py-10">
+            <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
+            <p className="text-slate-600 font-medium">
               AI対策状況を分析中です...
             </p>
-            <p className="text-slate-400 text-sm mt-2">10秒ほどお待ちください</p>
           </div>
         )}
 
-        {/* 結果表示（ここも少しリッチに） */}
+        {/* 結果表示 */}
         {result && !isLoading && (
-          <div className="p-6 md:p-10 bg-slate-50 border-t-2 border-dashed border-slate-200">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
-              <h3 className="text-xl font-bold text-slate-700 mb-2">
-                📊 あなたのサイトのAI対策スコア
-              </h3>
-              <div className="text-6xl font-black text-orange-600 my-4 tracking-tighter">
-                {result.score}
-                <span className="text-2xl text-slate-400 ml-2 font-medium">/ 100</span>
-              </div>
-              <p className="text-lg font-bold text-slate-800 bg-orange-100 inline-block px-6 py-2 rounded-full">
-                {renderScoreComment(result.score)}
-              </p>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+            {/* スコア */}
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-indigo-500">
+              <h3 className="text-xl font-bold mb-2 text-slate-800">📊 AI対策スコア</h3>
+              <p className="text-4xl font-black text-indigo-700">{result.score} / 100</p>
+              <p className="text-slate-600 mt-2 font-bold">{renderScoreComment(result.score)}</p>
             </div>
+
+            {/* できている点 */}
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-green-500">
+              <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
+                <span className="bg-green-100 text-green-700 p-1 rounded">✔</span> 
+                AI対策としてできている点
+              </h3>
+              <ul className="list-none space-y-3 text-slate-700">
+                {result.done.map((text, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                    <span>{renderWithTooltips(text)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 課題 */}
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-red-500">
+              <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
+                 <span className="bg-red-100 text-red-700 p-1 rounded">!</span>
+                 AI対策としての課題
+              </h3>
+
+              {result.issues.map((issue, i) => (
+                <div key={i} className="mb-8 last:mb-0 p-4 bg-red-50 rounded-lg border border-red-100">
+
+                  <p className="font-bold text-red-800 text-lg mb-2">
+                    ✕ {renderWithTooltips(issue.title)}
+                  </p>
+                  <p className="text-slate-800 mb-3">{renderWithTooltips(issue.summary)}</p>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-white p-3 rounded border border-red-100">
+                      <p className="text-xs font-bold text-red-500 mb-1">▼ なぜ問題？</p>
+                      <ul className="list-disc ml-4 text-sm text-slate-600">
+                        {issue.why.map((w, j) => (
+                          <li key={j}>{renderWithTooltips(w)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-red-100">
+                      <p className="text-xs font-bold text-red-500 mb-1">▼ 放置すると？</p>
+                      <ul className="list-disc ml-4 text-sm text-slate-600">
+                        {issue.risks.map((r, j) => (
+                          <li key={j}>{renderWithTooltips(r)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 改善提案 */}
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-yellow-500">
+              <h3 className="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
+                <span className="bg-yellow-100 text-yellow-700 p-1 rounded">💡</span>
+                改善提案
+              </h3>
+
+              {result.improve.map((item: any, i) => (
+                <div key={i} className="mb-4 last:mb-0 border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                  <p className="font-bold text-slate-800 text-lg">
+                    ◎ {item.title || item}
+                  </p>
+                  {item.summary && (
+                    <p className="text-slate-600 leading-relaxed mt-1">
+                      {item.summary}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* お問い合わせカード */}
+            <div className="bg-slate-800 text-white p-6 rounded-xl shadow-lg space-y-4">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-yellow-400" />
+                詳しい診断をご希望の方へ
+              </h3>    
+              <p className="text-sm text-slate-300 leading-relaxed">
+                本診断では把握しきれない改善優先度や具体的な施策について、専門スタッフが個別にご案内します。
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <a
+                  href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
+                  className="flex-1 bg-white text-indigo-900 hover:bg-indigo-50 py-3 rounded-lg font-bold text-center transition-colors"
+                >
+                  お問い合わせする
+                </a>
+                <a
+                  href="https://timerex.net/s/cev29130/87e0c2af/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 border border-white text-white hover:bg-white/10 py-3 rounded-lg font-bold text-center transition-colors"
+                >
+                  無料オンライン面談を予約
+                </a>
+              </div>
+            </div>
+
           </div>
         )}
-
       </div>
     </div>
   );
