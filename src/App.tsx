@@ -37,11 +37,6 @@ function App() {
         {/* ========================================== */}
         <div className="bg-white rounded-xl shadow-xl border border-gray-100 relative overflow-visible p-6 md:p-10">
           
-          {/* 左上の王冠バッジ（CSSで再現） */}
-          <div className="absolute -top-3 left-4 md:-top-4 md:left-10 bg-gradient-to-b from-[#eebf5e] to-[#d49e30] text-white font-bold px-4 py-2 rounded shadow-md border-b-2 border-[#b07e1a] z-10 flex items-center gap-2">
-            <Crown className="w-5 h-5 fill-white" />
-            <span className="drop-shadow-sm text-sm md:text-base">累計10万サイト突破！</span>
-          </div>
 
           <div className="mt-8 md:mt-6">
             
@@ -65,10 +60,13 @@ function App() {
                    <Check className="w-4 h-4" />
                 </div>
                 <p className="text-[#5a4a4a] font-medium leading-relaxed">
-                  URLを入力するだけで、LLMs.txt・構造化データ・robots.txtなど
-                  <strong className="text-[#c72626]">AI対策の重要な技術ポイント</strong>を
-                  <br className="hidden md:block"/>
-                  <strong className="text-[#c72626]">重要な施策点</strong>を自動チェックします。
+                  URLを入力するだけで、<strong className="text-[#c72626]">AI対策の重要な技術ポイント</strong>(LLMs.txt・構造化データ・robots.txtなど)を自動チェックします。
+                </p>
+                <div className="bg-[#cba876] text-white rounded-full p-0.5 mt-1 shrink-0">
+                <Check className="w-4 h-4" />
+                </div>
+                <p className="text-[#5a4a4a] font-medium leading-relaxed">
+                 <strong>改善すべき課題</strong>とリスクがすぐに分かります。
                 </p>
               </div>
             </div>
