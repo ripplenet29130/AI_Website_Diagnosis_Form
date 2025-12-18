@@ -160,14 +160,6 @@ function App() {
               </p>
             </div>
 
-            {/* キャラクター画像（中央配置・タイトルの下へ移動） */}
-            <div className="flex items-center justify-center py-2">
-                 {/* 画像プレースホルダー */}
-                 <div className="w-32 h-32 md:w-40 md:h-40 bg-slate-50 rounded-full border-4 border-white shadow-md flex flex-col items-center justify-center text-slate-400 overflow-hidden relative">
-                    <span className="text-5xl absolute bottom-0 translate-y-1/4">👩‍💻</span>
-                 </div>
-            </div>
-
             {/* メリットリスト（中央揃えの中で左寄せ） */}
             <div className="inline-block text-left bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
               <ul className="space-y-3">
