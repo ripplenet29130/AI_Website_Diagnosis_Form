@@ -6,46 +6,85 @@ import {
   Check, 
   ShieldCheck, 
   ChevronRight,
-  Sparkles 
+  Sparkles,
+  Mail // お問い合わせ用にメールアイコンを追加
 } from "lucide-react";
 import Tooltip from "./components/Tooltip";
 
 // ----------------------
-// 共通リッチボタンコンポーネント
+// 共通リッチボタンコンポーネント（機能拡張版）
 // ----------------------
+// 色のテーマを定義
+type ColorTheme = 'orange' | 'green';
+
 interface RichButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   icon?: ReactNode;
   children: ReactNode;
   className?: string;
+  colorTheme?: ColorTheme; // 色テーマを選択できるように追加（デフォルトはorange）
 }
 
-// メインの診断ボタンと同じデザインのボタン部品
+// テーマごとのスタイル定義（ホバー時の色変化も含む）
+const themeStyles: Record<ColorTheme, string> = {
+  orange: {
+    // 通常時: オレンジグラデーションと枠線
+    base: "from-[#ff9a3d] to-[#e85a0c] border-[#ffb06e] border-b-[#c24200]",
+    // ホバー時: 少し明るいオレンジへ
+    hover: "group-hover:from-[#ffaf66] group-hover:to-[#f06a1e] group-hover:border-[#ffd0a0]",
+    // アイコン色
+    iconColor: "text-yellow-300"
+  },
+  green: {
+    // 通常時: 緑グラデーションと枠線
+    base: "from-[#4ADE80] to-[#16A34A] border-[#86EFAC] border-b-[#14532D]",
+    // ホバー時: 少し明るい緑へ
+    hover: "group-hover:from-[#6EE7B7] group-hover:to-[#22C55E] group-hover:border-[#A7F3D0]",
+    // アイコン色
+    iconColor: "text-green-200"
+  },
+};
+
 const RichButton = ({
   onClick,
   disabled = false,
-  icon = <ChevronRight className="fill-white" />,
+  icon,
   children,
   className = "",
+  colorTheme = 'orange', // デフォルトはオレンジ
 }: RichButtonProps) => {
+  
+  const theme = themeStyles[colorTheme];
+  // iconが渡されていない場合のデフォルトアイコンを設定
+  const defaultIcon = icon || <ChevronRight className={`fill-white ${theme.iconColor}`} />;
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all active:translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed ${className}`}
+      // groupクラスとtransitionを追加してホバーアニメーションを有効化
+      className={`w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all duration-200 active:translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed ${className}`}
     >
-      <div className="bg-gradient-to-b from-[#ff9a3d] to-[#e85a0c] text-white text-lg md:text-xl font-bold py-4 px-6 border border-[#ffb06e] border-b-[#c24200] border-b-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center justify-center gap-2">
-        {disabled ? <Loader2 className="animate-spin" /> : icon}
+      <div className={`
+        bg-gradient-to-b ${theme.base} 
+        ${theme.hover} {/* ホバー時のスタイルを適用 */}
+        text-white text-lg md:text-xl font-bold py-4 px-6 border-b-4 
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] 
+        flex items-center justify-center gap-2
+        transition-all duration-200 {/* 色の変化を滑らかに */}
+      `}>
+        {disabled ? <Loader2 className="animate-spin" /> : defaultIcon}
         <span className="drop-shadow-md">{children}</span>
       </div>
-      {/* キラッと光る演出 */}
+      {/* キラッと光る演出（ホバー時のみアニメーション） */}
       {!disabled && (
         <div className="absolute top-0 -left-full w-1/2 h-full bg-white/20 skew-x-[-20deg] group-hover:animate-[shimmer_1s_infinite]"></div>
       )}
     </button>
   );
 };
+
 
 // ----------------------
 // Tooltip 対象キーワード辞書
@@ -169,7 +208,7 @@ function App() {
   };
 
   return (
-    // 全体のフォント・背景設定：bg-whiteに変更
+    // 全体のフォント・背景設定
     <div className="min-h-screen bg-white py-12 px-4 font-['Noto_Sans_JP',_sans-serif] text-[#333]">
       <div className="max-w-5xl mx-auto space-y-8">
         
@@ -246,7 +285,7 @@ function App() {
                   className="w-full border border-gray-300 rounded-md p-4 text-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all"
                 />
 
-                {/* リッチなボタン：共通コンポーネントを使用 */}
+                {/* リッチなボタン：共通コンポーネントを使用（デフォルトオレンジ・ホバー効果あり） */}
                 <RichButton onClick={handleSubmit} disabled={isLoading}>
                   今すぐ無料で診断する
                 </RichButton>
@@ -297,7 +336,7 @@ function App() {
         {result && !isLoading && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-            {/* スコアカード：オレンジ/茶色テーマに変更 */}
+            {/* スコアカード */}
             <div className="bg-white p-6 rounded-xl shadow-md border-l-8 border-[#e85a0c]">
               <h3 className="text-xl font-bold mb-2 text-[#5a2a2a]">📊 AI対策スコア</h3>
               <p className="text-4xl font-black text-[#e85a0c]">{result.score} / 100</p>
@@ -376,36 +415,43 @@ function App() {
               ))}
             </div>
 
-            {/* お問い合わせカード */}
-            <div className="bg-[#5a4a4a] text-white p-6 rounded-xl shadow-lg space-y-4">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#fdd835]" />
-                詳しい診断をご希望の方へ
-              </h3>    
-              <p className="text-sm text-gray-200 leading-relaxed">
-                本診断では把握しきれない改善優先度や具体的な施策について、専門スタッフが個別にご案内します。
-              </p>
+            {/* お問い合わせカード：背景を白に変更し、ボタンを色分け */}
+            <div className="bg-white text-[#5a4a4a] p-6 rounded-xl shadow-xl border border-gray-200 space-y-6">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2 text-[#5a2a2a]">
+                  <Sparkles className="w-5 h-5 text-[#fdd835]" />
+                  詳しい診断をご希望の方へ
+                </h3>    
+                <p className="text-sm text-[#5a4a4a] leading-relaxed mt-2">
+                  本診断では把握しきれない改善優先度や具体的な施策について、専門スタッフが個別にご案内します。
+                </p>
+              </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-4">
                 
-                {/* お問い合わせボタン：RichButtonを使用 */}
+                {/* 左ボタン：緑色テーマを適用 */}
                 <a
                   href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
                   className="flex-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <RichButton icon={<Sparkles className="w-5 h-5 text-yellow-300" />}>
+                  <RichButton 
+                    colorTheme="green" 
+                    icon={<Mail className="w-5 h-5 fill-white text-green-200" />}
+                  >
                     お問い合わせする
                   </RichButton>
                 </a>
 
-                {/* オンライン面談予約ボタン：RichButtonを使用 */}
+                {/* 右ボタン：デフォルトのオレンジ色テーマ（ホバー効果あり） */}
                 <a
                   href="https://timerex.net/s/cev29130/87e0c2af/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"
                 >
-                  <RichButton icon={<Sparkles className="w-5 h-5 text-yellow-300" />}>
+                  <RichButton icon={<Sparkles className="w-5 h-5 fill-white text-yellow-300" />}>
                     無料オンライン面談を予約
                   </RichButton>
                 </a>
