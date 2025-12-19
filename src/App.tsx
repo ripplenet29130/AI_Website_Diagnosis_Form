@@ -163,7 +163,7 @@ function App() {
                 <span className="relative z-10 text-[#c72626] font-semibold">
                   10秒
                 </span>
-                <span className="absolute bottom-0 left-0 w-full h-2 bg-indigo-100 -z-0 rounded-sm"></span>
+                <span className="absolute bottom-0 left-0 w-full h-2 bg-[#fff04d] -z-0 rounded-sm"></span>
               </span>
               で診断
             </h2>
@@ -188,7 +188,7 @@ function App() {
                    <Check className="w-4 h-4" />
                 </div>
                 <p className="text-[#5a4a4a] font-medium leading-relaxed">
-                  <strong className="text-[#c72626]">改善すべき課題</strong>とリスクがすぐに分かります。
+                  <strong className="text-[#c72626]">改善すべき課題</strong>と<strong className="text-[#c72626]"リスク</strong>がすぐに分かります。
                 </p>
               </div>
 
