@@ -188,7 +188,7 @@ function App() {
                    <Check className="w-4 h-4" />
                 </div>
                 <p className="text-[#5a4a4a] font-medium leading-relaxed">
-                  <strong className="text-[#c72626]">改善すべき課題</strong>と<strong className="text-[#c72626]"リスク</strong>がすぐに分かります。
+                  <strong className="text-[#c72626]">改善すべき課題</strong>と<strong className="text-[#c72626]">リスク</strong>がすぐに分かります。
                 </p>
               </div>
 
