@@ -1,5 +1,4 @@
-// src/App.tsx
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 // 必要なアイコンをすべてインポート
 import { 
   Loader2, 
@@ -10,6 +9,43 @@ import {
   Sparkles 
 } from "lucide-react";
 import Tooltip from "./components/Tooltip";
+
+// ----------------------
+// 共通リッチボタンコンポーネント
+// ----------------------
+interface RichButtonProps {
+  onClick?: () => void;
+  disabled?: boolean;
+  icon?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}
+
+// メインの診断ボタンと同じデザインのボタン部品
+const RichButton = ({
+  onClick,
+  disabled = false,
+  icon = <ChevronRight className="fill-white" />,
+  children,
+  className = "",
+}: RichButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all active:translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed ${className}`}
+    >
+      <div className="bg-gradient-to-b from-[#ff9a3d] to-[#e85a0c] text-white text-lg md:text-xl font-bold py-4 px-6 border border-[#ffb06e] border-b-[#c24200] border-b-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center justify-center gap-2">
+        {disabled ? <Loader2 className="animate-spin" /> : icon}
+        <span className="drop-shadow-md">{children}</span>
+      </div>
+      {/* キラッと光る演出 */}
+      {!disabled && (
+        <div className="absolute top-0 -left-full w-1/2 h-full bg-white/20 skew-x-[-20deg] group-hover:animate-[shimmer_1s_infinite]"></div>
+      )}
+    </button>
+  );
+};
 
 // ----------------------
 // Tooltip 対象キーワード辞書
@@ -133,8 +169,8 @@ function App() {
   };
 
   return (
-    // 全体のフォント・背景設定
-    <div className="min-h-screen bg-[#FFFcf5] py-12 px-4 font-['Noto_Sans_JP',_sans-serif] text-[#333]">
+    // 全体のフォント・背景設定：bg-whiteに変更
+    <div className="min-h-screen bg-white py-12 px-4 font-['Noto_Sans_JP',_sans-serif] text-[#333]">
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* ========================================== */}
@@ -155,7 +191,6 @@ function App() {
               text-slate-900
               mb-8
             ">
-
               AI時代のWEB対策(AIO)できていますか？
               <br />
               あなたのサイトを
@@ -169,7 +204,6 @@ function App() {
             </h2>
 
             {/* メリット（チェックリスト） */}
-            {/* 中央揃えで見やすいように max-w を設定して mx-auto で配置 */}
             <div className="space-y-4 mb-10 max-w-2xl mx-auto text-left">
               
               {/* 1行目 */}
@@ -212,18 +246,10 @@ function App() {
                   className="w-full border border-gray-300 rounded-md p-4 text-lg outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all"
                 />
 
-                {/* リッチなボタン */}
-                <button
-                  onClick={handleSubmit}
-                  className="w-full relative group overflow-hidden rounded-lg shadow-lg transform transition-all active:translate-y-1"
-                >
-                  <div className="bg-gradient-to-b from-[#ff9a3d] to-[#e85a0c] text-white text-xl md:text-2xl font-bold py-4 px-6 border border-[#ffb06e] border-b-[#c24200] border-b-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] flex items-center justify-center gap-2">
-                      {isLoading ? <Loader2 className="animate-spin" /> : <ChevronRight className="fill-white" />}
-                      <span className="drop-shadow-md">今すぐ無料で診断する</span>
-                  </div>
-                  {/* キラッと光る演出 */}
-                  <div className="absolute top-0 -left-full w-1/2 h-full bg-white/20 skew-x-[-20deg] group-hover:animate-[shimmer_1s_infinite]"></div>
-                </button>
+                {/* リッチなボタン：共通コンポーネントを使用 */}
+                <RichButton onClick={handleSubmit} disabled={isLoading}>
+                  今すぐ無料で診断する
+                </RichButton>
                 
                 {/* 安心感の補足 */}
                 <div className="flex justify-center gap-4 text-xs text-[#8b7968]">
@@ -350,7 +376,7 @@ function App() {
               ))}
             </div>
 
-            {/* お問い合わせカード：ダークブラウン系のアクセント */}
+            {/* お問い合わせカード */}
             <div className="bg-[#5a4a4a] text-white p-6 rounded-xl shadow-lg space-y-4">
               <h3 className="text-lg font-bold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#fdd835]" />
@@ -361,19 +387,27 @@ function App() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                
+                {/* お問い合わせボタン：RichButtonを使用 */}
                 <a
                   href="https://www.rip-ple.com/%E3%81%8A%E5%95%8F%E5%90%88%E3%81%9B/"
-                  className="flex-1 bg-white text-[#5a4a4a] hover:bg-gray-100 py-3 rounded-lg font-bold text-center transition-colors shadow-sm"
+                  className="flex-1"
                 >
-                  お問い合わせする
+                  <RichButton icon={<Sparkles className="w-5 h-5 text-yellow-300" />}>
+                    お問い合わせする
+                  </RichButton>
                 </a>
+
+                {/* オンライン面談予約ボタン：RichButtonを使用 */}
                 <a
                   href="https://timerex.net/s/cev29130/87e0c2af/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 border border-white text-white hover:bg-white/10 py-3 rounded-lg font-bold text-center transition-colors"
+                  className="flex-1"
                 >
-                  無料オンライン面談を予約
+                  <RichButton icon={<Sparkles className="w-5 h-5 text-yellow-300" />}>
+                    無料オンライン面談を予約
+                  </RichButton>
                 </a>
               </div>
             </div>
