@@ -146,14 +146,24 @@ function App() {
 
           <div className="mt-2 md:mt-4 text-center">
             
-            {/* 見出しエリア：font-serif を追加して明朝体に */}
-            <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-[#5a2a2a] mb-8">
+            {/* 見出しエリア */}
+            <h2 className="
+              text-2xl md:text-4xl
+              font-semibold
+              leading-snug
+              tracking-normal
+              text-slate-900
+              mb-8
+            ">
+
               AI時代のWEB対策(AIO)できていますか？
               <br />
               あなたのサイトを
               <span className="relative inline-block mx-2">
-                <span className="relative z-10 text-[#c72626]">10秒</span>
-                <span className="absolute bottom-1 left-0 w-full h-3 bg-[#fff04d] -z-0 transform -rotate-1"></span>
+                <span className="relative z-10 text-indigo-700 font-semibold">
+                  10秒
+                </span>
+                <span className="absolute bottom-0 left-0 w-full h-2 bg-indigo-100 -z-0 rounded-sm"></span>
               </span>
               で診断
             </h2>
