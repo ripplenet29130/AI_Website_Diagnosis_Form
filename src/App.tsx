@@ -160,7 +160,7 @@ function App() {
               <br />
               あなたのサイトを
               <span className="relative inline-block mx-2">
-                <span className="relative z-10 text-indigo-700 font-semibold">
+                <span className="relative z-10 text-[#c72626] font-semibold">
                   10秒
                 </span>
                 <span className="absolute bottom-0 left-0 w-full h-2 bg-indigo-100 -z-0 rounded-sm"></span>
